@@ -1,0 +1,19 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Color x:Key="AccentColor">#007AFF</Color>
+  <SolidColorBrush x:Key="Accent" Color="{StaticResource AccentColor}"/>
+  <SolidColorBrush x:Key="AccentSoft" Color="#EAF3FF"/>
+  <SolidColorBrush x:Key="AccentDeep" Color="#0066CC"/>
+  <SolidColorBrush x:Key="Ink" Color="#1D1D1F"/>
+  <SolidColorBrush x:Key="Muted" Color="#6E6E73"/>
+  <SolidColorBrush x:Key="MutedLight" Color="#8E8E93"/>
+  <SolidColorBrush x:Key="Canvas" Color="#FAFAFC"/>
+  <SolidColorBrush x:Key="Surface" Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="Line" Color="#E5E5EA"/>
+  <SolidColorBrush x:Key="Sidebar" Color="#F5F5F7"/>
+  <SolidColorBrush x:Key="SidebarSelected" Color="#E6E6EB"/>
+  <SolidColorBrush x:Key="Danger" Color="#C53E3E"/>
+  <SolidColorBrush x:Key="Console" Color="#202124"/>
+  <FontFamily x:Key="BodyFont">Segoe UI, Microsoft YaHei UI</FontFamily>
+  <FontFamily x:Key="MonoFont">Cascadia Code, Consolas, Microsoft YaHei UI</FontFamily>
+  <CornerRadius x:Key="CardRadius">12</CornerRadius>
+</ResourceDictionary>

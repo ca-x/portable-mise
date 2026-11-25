@@ -55,3 +55,11 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+# Local portable data and agent/build evidence
+.omo/
+artifacts/
+portable-mise.json
+portable-mise.json.bak
+mise/
+tools/
+data/

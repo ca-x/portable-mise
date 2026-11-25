@@ -1,0 +1,8 @@
+<Window x:Class="PortableMise.CloseChoiceDialog" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="关闭程序" Width="420" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Icon="Assets/mise.ico" Background="White" Foreground="{DynamicResource Ink}" FontFamily="{DynamicResource BodyFont}" PreviewKeyDown="OnPreviewKeyDown">
+  <Grid Margin="24"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <TextBlock Text="请选择关闭方式" FontSize="18" FontWeight="SemiBold"/>
+    <TextBlock Grid.Row="1" Text="以后可在设置中修改。" Foreground="{DynamicResource Muted}" Margin="0,12,0,24"/>
+    <CheckBox x:Name="RememberChoiceBox" Grid.Row="2" Content="记住我的选择" IsChecked="True" Style="{DynamicResource CheckMark}" Margin="0,0,0,20" AutomationProperties.AutomationId="RememberCloseChoiceBox"/>
+    <Grid Grid.Row="3"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/></Grid.ColumnDefinitions><Button x:Name="ExitButton" Content="退出程序" Click="OnExitClick" AutomationProperties.AutomationId="CloseChoiceExitButton"/><Button x:Name="TrayButton" Grid.Column="2" Content="收起到托盘" Style="{DynamicResource PrimaryButton}" Click="OnTrayClick" IsDefault="True" AutomationProperties.AutomationId="CloseChoiceTrayButton"/></Grid>
+  </Grid>
+</Window>

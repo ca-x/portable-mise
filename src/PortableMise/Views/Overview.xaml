@@ -1,0 +1,108 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:PortableMise.Controls" xmlns:models="clr-namespace:PortableMise.Models">
+  <DataTemplate x:Key="OverviewPage">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="24">
+        <Grid Margin="0,0,0,24">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <StackPanel Orientation="Horizontal">
+            <Button Command="{Binding PrimaryActionCommand}" Style="{StaticResource PrimaryButton}" AutomationProperties.AutomationId="PrimaryActionButton">
+              <StackPanel Orientation="Horizontal">
+                <controls:SvgIcon Data="{StaticResource IconRefreshCw}" Width="16" Height="16" Foreground="White" Margin="0,0,8,0" />
+                <TextBlock Text="{Binding PrimaryActionText}" />
+              </StackPanel>
+            </Button>
+            <Button Command="{Binding RefreshCommand}" Style="{StaticResource QuietButton}" Margin="8,0,0,0" ToolTip="刷新" AutomationProperties.AutomationId="OverviewRefreshButton">
+              <controls:SvgIcon Data="{StaticResource IconRefreshCw}" Width="18" Height="18" />
+            </Button>
+          </StackPanel>
+          <Button Grid.Column="1" Content="查看日志" Command="{Binding ShowTerminalCommand}" Style="{StaticResource QuietButton}" />
+        </Grid>
+        <Border Style="{StaticResource Card}" Visibility="{Binding NeedsSetup,Converter={StaticResource BoolVisibility}}" IsEnabled="{Binding CanOperate}" AutomationProperties.AutomationId="FirstSetupPanel">
+          <StackPanel>
+            <TextBlock Text="安装选项" Style="{StaticResource SectionTitle}" Margin="0,0,0,20" />
+            <controls:PathPicker Caption="mise 目录" Text="{Binding Settings.MiseDirectory,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" BrowseCommand="{Binding BrowseMiseDirectoryCommand}" Margin="0,0,0,16" />
+            <controls:PathPicker Caption="工具目录" Text="{Binding Settings.ToolsDirectory,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" BrowseCommand="{Binding BrowseToolsDirectoryCommand}" Margin="0,0,0,16" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="112" />
+                <ColumnDefinition Width="190" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="88" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="代理" Foreground="{StaticResource Muted}" VerticalAlignment="Center" />
+              <ComboBox Grid.Column="1" ItemsSource="{StaticResource ProxyModes}" SelectedItem="{Binding Settings.ProxyMode,Mode=TwoWay}" AutomationProperties.AutomationId="SetupProxyModeBox">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource ProxyModeLabel}}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <TextBox Grid.Column="3" Text="{Binding Settings.ProxyAddress,UpdateSourceTrigger=PropertyChanged}" ToolTip="自定义代理地址" AutomationProperties.AutomationId="SetupProxyAddressBox">
+                <TextBox.Style>
+                  <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                    <Setter Property="IsEnabled" Value="False" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Settings.ProxyMode}" Value="{x:Static models:ProxyMode.Custom}">
+                        <Setter Property="IsEnabled" Value="True" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBox.Style>
+              </TextBox>
+              <Button Grid.Column="5" Content="测试" Command="{Binding TestProxyCommand}" />
+            </Grid>
+          </StackPanel>
+        </Border>
+        <Border Background="{StaticResource AccentSoft}" BorderBrush="#D9E8FF" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,16" Visibility="{Binding NeedsRestore,Converter={StaticResource BoolVisibility}}">
+          <TextBlock Text="终端环境需要重新登记。" Foreground="{StaticResource AccentDeep}" />
+        </Border>
+        <Grid Margin="0,0,0,16">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
+          <controls:StatusCard Caption="mise" Value="{Binding MiseVersion}" IsReady="{Binding IsInstalled}" IsBusy="{Binding IsBusy}" />
+          <controls:StatusCard Grid.Column="2" Caption="工具版本" Value="{Binding ToolCount}" IsReady="{Binding IsInstalled}" />
+          <controls:StatusCard Grid.Column="4" Caption="代理" Value="{Binding ProxyStatus}" />
+        </Grid>
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="目录" Style="{StaticResource SectionTitle}" />
+              <Button Grid.Column="1" Content="修改" Command="{Binding ShowSettingsCommand}" Style="{StaticResource QuietButton}" Height="28" MinHeight="28" Padding="8,2" />
+            </Grid>
+            <Grid Margin="0,16,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="112" />
+                <ColumnDefinition />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="mise" Foreground="{StaticResource Muted}" />
+              <TextBlock Grid.Column="1" Text="{Binding ResolvedMiseDirectory}" FontFamily="{StaticResource MonoFont}" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip="{Binding ResolvedMiseDirectory}" />
+            </Grid>
+            <Grid Margin="0,16,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="112" />
+                <ColumnDefinition />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="工具" Foreground="{StaticResource Muted}" />
+              <TextBlock Grid.Column="1" Text="{Binding ResolvedToolsDirectory}" FontFamily="{StaticResource MonoFont}" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip="{Binding ResolvedToolsDirectory}" />
+            </Grid>
+          </StackPanel>
+        </Border>
+        <TextBlock Text="{Binding LastOperation}" Style="{StaticResource Caption}" />
+      </StackPanel>
+    </ScrollViewer>
+  </DataTemplate>
+</ResourceDictionary>

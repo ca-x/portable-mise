@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AssemblyName>PortableMise</AssemblyName>
+    <RootNamespace>PortableMise</RootNamespace>
+    <Version>0.1.0</Version>
+    <ApplicationIcon>Assets\mise.ico</ApplicationIcon>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <DebugType>embedded</DebugType>
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\mise.ico" />
+    <Resource Include="Assets\mise.png" />
+    <EmbeddedResource Include="..\..\LICENSE" LogicalName="PortableMise.License.txt" />
+    <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.md" LogicalName="PortableMise.Notices.txt" />
+    <EmbeddedResource Include="..\..\docs\licenses\*.txt" LogicalName="PortableMise.Licenses.%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

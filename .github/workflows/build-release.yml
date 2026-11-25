@@ -1,0 +1,82 @@
+name: Build and release desktop
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build, test and publish single executables
+        shell: pwsh
+        env:
+          BUILD_REF: ${{ github.ref_name }}
+          BUILD_REF_TYPE: ${{ github.ref_type }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          $version = if ($env:BUILD_REF_TYPE -eq 'tag') { $env:BUILD_REF } else { '0.1.0-ci.' + $env:BUILD_NUMBER }
+          ./scripts/build.ps1 -Version $version -RuntimeIdentifier @('win-x64', 'win-arm64')
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: portable-mise-windows
+          path: |
+            artifacts/PortableMise-*.exe
+            artifacts/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: portable-mise-windows
+          path: release-assets
+      - name: Publish verified release assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $assets = @(Get-ChildItem -LiteralPath release-assets -File | ForEach-Object { $_.FullName })
+          if ($assets.Count -ne 3) { throw 'Expected x64 and ARM64 executables plus SHA256SUMS.txt.' }
+          $checksumFile = Join-Path release-assets 'SHA256SUMS.txt'
+          foreach ($line in Get-Content -LiteralPath $checksumFile) {
+            $parts = $line -split '\s+', 2
+            if ($parts.Count -ne 2 -or $parts[1] -ne [IO.Path]::GetFileName($parts[1])) { throw 'Invalid checksum entry.' }
+            $actual = (Get-FileHash -LiteralPath (Join-Path release-assets $parts[1]) -Algorithm SHA256).Hash
+            if ($actual -ne $parts[0]) { throw 'Release asset hash mismatch.' }
+          }
+          gh release view $env:RELEASE_TAG --repo $env:GH_REPO *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:RELEASE_TAG @assets --repo $env:GH_REPO --clobber
+          } else {
+            $flags = @('--verify-tag', '--generate-notes', '--title', $env:RELEASE_TAG, '--repo', $env:GH_REPO)
+            if ($env:RELEASE_TAG.Contains('-')) { $flags += '--prerelease' }
+            gh release create $env:RELEASE_TAG @assets @flags
+          }
+          if ($LASTEXITCODE -ne 0) { throw ('Release publication failed: ' + $LASTEXITCODE) }

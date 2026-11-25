@@ -1,0 +1,66 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DataTemplate x:Key="UpdatesPage">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="24,24,24,24">
+        <Border Style="{StaticResource Card}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+              <TextBlock Text="mise 与开发工具" Style="{StaticResource SectionTitle}" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="升级 mise 与工具" Command="{Binding UpdateAllCommand}" Style="{StaticResource PrimaryButton}" VerticalAlignment="Center" Margin="20,0,0,0" AutomationProperties.AutomationId="UpdateAllButton" />
+          </Grid>
+        </Border>
+        <Grid Margin="0,0,0,18">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="18" />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
+          <Border Style="{StaticResource Card}" Margin="0">
+            <StackPanel>
+              <TextBlock Text="mise CLI" Style="{StaticResource Caption}" />
+              <TextBlock Text="{Binding MiseVersion}" TextWrapping="Wrap" FontSize="23" FontWeight="SemiBold" Margin="0,10,0,8" />
+              <Button Content="更新 mise" Command="{Binding UpdateMiseCommand}" HorizontalAlignment="Left" AutomationProperties.AutomationId="UpdateMiseButton" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="2" Style="{StaticResource Card}" Margin="0">
+            <StackPanel>
+              <TextBlock Text="开发工具" Style="{StaticResource Caption}" />
+              <TextBlock Text="{Binding ToolCount,StringFormat={}{0} 个已安装版本}" FontSize="23" FontWeight="SemiBold" Margin="0,10,0,8" />
+              <Button Content="升级全部工具" Command="{Binding UpgradeToolsCommand}" HorizontalAlignment="Left" AutomationProperties.AutomationId="UpdatesUpgradeToolsButton" />
+            </StackPanel>
+          </Border>
+        </Grid>
+        <Border Style="{StaticResource Card}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+              <TextBlock Text="桌面程序" Style="{StaticResource SectionTitle}" />
+              <TextBlock Text="{Binding ApplicationVersion,StringFormat=当前版本 {0}}" Style="{StaticResource Caption}" Margin="0,8,0,0" />
+              <TextBlock Text="{Binding AppUpdateText}" TextWrapping="Wrap" Margin="0,12,12,0" Foreground="{StaticResource Accent}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+              <Button Content="检查新版本" Command="{Binding CheckAppUpdateCommand}" Margin="0,0,0,8" AutomationProperties.AutomationId="CheckAppUpdateButton" />
+              <Button Content="下载安装并重启" Command="{Binding ApplyAppUpdateCommand}" IsEnabled="{Binding HasAppUpdate}" Style="{StaticResource PrimaryButton}" AutomationProperties.AutomationId="ApplyAppUpdateButton" />
+            </StackPanel>
+          </Grid>
+        </Border>
+        <Grid Margin="2,0,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="{Binding LastOperation}" Style="{StaticResource Caption}" VerticalAlignment="Center" />
+          <Button Grid.Column="1" Content="查看日志" Command="{Binding ShowTerminalCommand}" Style="{StaticResource QuietButton}" />
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </DataTemplate>
+</ResourceDictionary>
