@@ -9,7 +9,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>PortableMise</AssemblyName>
     <RootNamespace>PortableMise</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <ApplicationIcon>Assets\mise.ico</ApplicationIcon>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
@@ -18,10 +18,12 @@
     <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Tomlyn" Version="2.11.1" />
     <Resource Include="Assets\mise.ico" />
     <Resource Include="Assets\mise.png" />
     <EmbeddedResource Include="..\..\LICENSE" LogicalName="PortableMise.License.txt" />
     <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.md" LogicalName="PortableMise.Notices.txt" />
     <EmbeddedResource Include="..\..\docs\licenses\*.txt" LogicalName="PortableMise.Licenses.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Resources\English.*.json" LogicalName="PortableMise.Localization.%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

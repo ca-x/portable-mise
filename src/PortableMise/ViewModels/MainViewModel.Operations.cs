@@ -1,5 +1,6 @@
 using System.Windows;
 using PortableMise.Models;
+using PortableMise.Localization;
 using PortableMise.Services;
 
 namespace PortableMise.ViewModels;
@@ -13,8 +14,9 @@ public sealed partial class MainViewModel
         if (!await gate.WaitAsync(0)) return;
         operation = new CancellationTokenSource();
         IsBusy = true;
+        title = UiText.T(title);
         StatusText = title;
-        StatusDetail = "正在处理，可在终端页查看实时记录。";
+        StatusDetail = UiText.T("正在处理，可在终端页查看实时记录。");
         Log("── " + title + " ──");
         try
         {
@@ -23,10 +25,10 @@ public sealed partial class MainViewModel
             ProxySupport.Validate(snapshot);
             NotifyPaths();
             await action(snapshot, operation.Token);
-            StatusText = "操作完成";
-            StatusDetail = title + "已完成。";
+            StatusText = UiText.T("操作完成");
+            StatusDetail = UiText.F("{0}已完成。", title);
         }
-        catch (OperationCanceledException) { StatusText = "已取消"; StatusDetail = "本次操作已停止。"; Log("操作已取消。"); }
+        catch (OperationCanceledException) { StatusText = UiText.T("已取消"); StatusDetail = UiText.T("本次操作已停止。"); Log(UiText.T("操作已取消。")); }
         catch (Exception error) { ReportError(error); }
         finally
         {
@@ -42,7 +44,7 @@ public sealed partial class MainViewModel
         snapshot.MiseDirectory = AppPaths.PortablePath(paths.MiseRoot, appDirectory);
         snapshot.ToolsDirectory = AppPaths.PortablePath(paths.ToolsRoot, appDirectory);
         if (snapshot.UpdateIntervalHours < 1 || snapshot.UpdateIntervalHours > 168)
-            throw new InvalidOperationException("自动更新间隔请设置为 1 到 168 小时。");
+            throw new InvalidOperationException(UiText.T("自动更新间隔请设置为 1 到 168 小时。"));
         await settingsGate.WaitAsync(ct);
         try
         {
@@ -74,23 +76,24 @@ public sealed partial class MainViewModel
     {
         var paths = AppPaths.Resolve(snapshot, appDirectory);
         IsInstalled = File.Exists(paths.MiseExecutable) && File.Exists(paths.MiseShimExecutable);
-        string versionOutput = IsInstalled ? await mise.GetVersionAsync(snapshot, ct) : "未安装";
-        MiseVersion = versionOutput.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? versionOutput;
+        string versionOutput = IsInstalled ? await mise.GetVersionAsync(snapshot, ct) : "";
+        MiseVersion = IsInstalled ? versionOutput.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? versionOutput
+            : UiText.T("未安装");
         var tools = IsInstalled ? await mise.GetToolsAsync(snapshot, ct) : [];
         Tools.Clear();
         foreach (var tool in tools) Tools.Add(tool);
         Notify(nameof(ToolCount)); NotifyPaths();
         bool configured = IsInstalled && terminal.IsConfigured(snapshot);
         IsTerminalConfigured = configured;
-        Log(IsInstalled ? $"mise {MiseVersion}，发现 {Tools.Count} 个工具版本。" : "尚未安装 mise，点击一键安装开始。");
-        if (IsInstalled && !configured) Log("当前终端环境尚未登记或目录已移动；点击一键恢复即可重新登记。");
+        Log(IsInstalled ? UiText.F("mise {0}，发现 {1} 个工具版本。", MiseVersion, Tools.Count) : UiText.T("尚未安装 mise，点击一键安装开始。"));
+        if (IsInstalled && !configured) Log(UiText.T("当前终端环境尚未登记或目录已移动；点击一键恢复即可重新登记。"));
     }
 
     private async Task CheckApplicationUpdateAsync(AppSettings snapshot, CancellationToken ct)
     {
         availableRelease = await updater.CheckAsync(snapshot, ct);
         HasAppUpdate = availableRelease != null;
-        AppUpdateText = availableRelease == null ? "暂无可用的新版本，或仓库尚未发布桌面程序。" : "可更新到 " + availableRelease.Version;
+        AppUpdateText = availableRelease == null ? UiText.T("暂无可用的新版本，或仓库尚未发布桌面程序。") : UiText.F("可更新到 {0}", availableRelease.Version);
         Log(AppUpdateText);
         snapshot.LastApplicationCheckUtc = DateTimeOffset.UtcNow;
         await CommitSettingsAsync(snapshot, ct);
@@ -101,13 +104,13 @@ public sealed partial class MainViewModel
         if (availableRelease == null) await CheckApplicationUpdateAsync(snapshot, ct);
         if (availableRelease == null) return;
         var staged = await updater.StageAsync(availableRelease, snapshot, Log, ct);
-        Log("新版本校验通过，正在准备重启更新。");
+        Log(UiText.T("新版本校验通过，正在准备重启更新。"));
         ApplicationUpdateReady?.Invoke(staged);
     }
 
     public async Task CheckAutomaticUpdatesAsync()
     {
-        if (IsBusy || NeedsRestore) return;
+        if (IsBusy || NeedsRestore || toolEditorOpen) return;
         var now = DateTimeOffset.UtcNow;
         if (lastAutomaticAttempt != null && now - lastAutomaticAttempt < TimeSpan.FromMinutes(15)) return;
         bool Due(DateTimeOffset? last) => last == null || now - last >= TimeSpan.FromHours(Math.Clamp(Settings.UpdateIntervalHours, 1, 168));
@@ -137,8 +140,8 @@ public sealed partial class MainViewModel
         LogText = updated.Length <= 250_000 ? updated : updated[^200_000..];
     });
     private void ReportError(Exception error) => Ui(() => {
-        StatusText = "操作未完成";
+        StatusText = UiText.T("操作未完成");
         StatusDetail = ProxySupport.Sanitize(error.Message);
-        Log("错误：" + error.Message);
+        Log(UiText.F("错误：{0}", error.Message));
     });
 }

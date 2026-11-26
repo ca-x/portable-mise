@@ -1,14 +1,24 @@
-# Portable mise
+# mise工具箱 · Mise Toolbox
 
 Windows 11 的 mise 桌面管理程序，使用 WPF。自定义控件、主题和图标编入主程序，发布为单个 framework-dependent EXE；需要 **.NET 10 Desktop Runtime**，不需要 .NET SDK。
 
 ## 使用
 
 1. 将 EXE 放到准备长期保留的目录。首次启动选择 mise、工具目录及代理，点击“安装 mise”。
-2. 平时点击“更新环境”，分别执行 `mise self-update --yes` 和 `mise upgrade --yes`。工具页可以添加 `node@lts`、`python@3.13` 等工具。
+2. 平时点击“更新环境”，分别执行 `mise self-update --yes` 和 `mise upgrade --yes`。工具页输入 `node@lts`、`python@3.13` 等规格后回车加入队列，可移除或点击标签齿轮编辑，再点击“批量安装”。安装中可以继续排队，两行状态实时显示当前批次和最新输出，终端图标可打开完整日志。
 3. 重装系统或移动整个工作目录后，启动同一个程序，点击“恢复环境”。程序会重新登记当前用户的 mise 环境变量、PATH 和 shims，保留已有工具和全局配置。
 
 桌面程序自身的更新通过设置中的检查入口和自动更新选项管理，下载来自本仓库 GitHub Releases，并校验 SHA256；更新前保留旧 EXE，目录中的配置和工具不被覆盖。
+
+界面内嵌简体中文和英文，安装时默认跟随 Windows。可在设置中选择语言并保存，重启后生效。
+
+## 工具选项与维护
+
+“添加语言”包含 mise 官方核心语言目录。标签齿轮根据语言显示对应的版本、安装选项与可编辑的工作区镜像。Rust 可选择工具链、组件、目标和 mr-boxington，启用后会把配套工具加入队列。Rustup 下载地址与 Cargo 依赖镜像独立保存。Go 本体下载支持官方默认站、Google 中国站及自定义地址；`GOPROXY` 单独填写，保留逗号、竖线回退规则和 `direct` 参数。
+
+工具配置与维护可打开 mise 和便携 Cargo 配置文件，提供原生工具选项、安装前后钩子和软件包配置示例。WinGet 声明式软件包及当前用户的工具清理先预览再执行。共享系统工具仅提供清理预览。PowerShell 激活命令可复制。
+
+“导出工具”预览可复制或保存为 TOML。导出保留工作区的工具声明、选项和已知镜像设置，附完整已安装版本清单；已安装但未被声明的工具也会加入配置。Cargo 镜像另以可复制的 Cargo 配置片段附在文件里。
 
 ## 便携目录
 
@@ -49,7 +59,7 @@ mise 根目录与工具数据目录支持自定义。程序目录内的路径保
 
 ```powershell
 dotnet build PortableMise.sln -c Release
-./scripts/build.ps1 -Version 0.1.0 -RuntimeIdentifier @('win-x64', 'win-arm64')
+./scripts/build.ps1 -Version 0.2.0 -RuntimeIdentifier @('win-x64', 'win-arm64')
 ```
 
 `scripts/build.ps1` 运行测试并发布单 EXE，检查无外部控件 DLL、deps/runtimeconfig JSON 或运行时文件，输出带架构名的 EXE 和 `SHA256SUMS.txt`。也可通过 `-DotnetPath` 指定 SDK 路径。

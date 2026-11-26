@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using PortableMise.Models;
 
+using PortableMise.Localization;
+
 namespace PortableMise.Services;
 
 public static class MiseEnvironment
@@ -8,7 +10,7 @@ public static class MiseEnvironment
     public static void ValidatePathEntries(AppPaths paths)
     {
         if (paths.MiseBinDirectory.Contains(Path.PathSeparator) || paths.ShimsDirectory.Contains(Path.PathSeparator))
-            throw new InvalidOperationException("mise 目录或工具目录不能包含 PATH 分隔符（;），请选择不含分号的目录。");
+            throw new InvalidOperationException(UiText.T("mise 目录或工具目录不能包含 PATH 分隔符（;），请选择不含分号的目录。"));
     }
 
     public static IReadOnlyDictionary<string, string> Variables(AppPaths paths) => new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

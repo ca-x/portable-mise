@@ -145,6 +145,14 @@ public static class RuntimeTests
         probe.EnsureSuccess();
         using var json = JsonDocument.Parse(probe.StandardOutput);
         Check(json.RootElement.GetProperty("HTTPS_PROXY").GetString() == custom.ProxyAddress && json.RootElement.GetProperty("MISE_DATA_DIR").GetString() == paths.ToolsRoot, "actual mise child inherits proxy and portable directories");
+        var lines = new List<string>();
+        await runtime.InstallToolsAsync(custom, [
+            new ToolInstallRequest("rust@stable", new Dictionary<string, string> { ["components"] = "rust-src,clippy", ["mr_boxington"] = "true" }),
+            new ToolInstallRequest("mr-boxington"), new ToolInstallRequest("go@1.26")], lines.Add);
+        var arguments = JsonSerializer.Deserialize<string[]>(lines.Last());
+        Check(arguments!.SequenceEqual(["use", "--global", "--yes", "--tool-option", "components=rust-src,clippy",
+            "--tool-option", "mr_boxington=true", "rust@stable", "mr-boxington", "go@1.26"]),
+            "one native mise process receives multiple tools with options scoped to Rust");
         string? oldProxy = Environment.GetEnvironmentVariable("HTTPS_PROXY");
         try
         {
@@ -203,5 +211,6 @@ public static class RuntimeTests
         public Task UpgradeToolsAsync(AppSettings settings, Action<string>? log = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task SelfUpdateAsync(AppSettings settings, Action<string>? log = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task InstallToolAsync(AppSettings settings, string specification, Action<string>? log = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task InstallToolsAsync(AppSettings settings, IReadOnlyList<ToolInstallRequest> requests, Action<string>? log = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

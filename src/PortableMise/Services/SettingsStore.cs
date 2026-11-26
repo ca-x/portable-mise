@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using PortableMise.Models;
 
+using PortableMise.Localization;
+
 namespace PortableMise.Services;
 
 public sealed class SettingsStore(string appDirectory) : ISettingsStore
@@ -20,13 +22,13 @@ public sealed class SettingsStore(string appDirectory) : ISettingsStore
         try
         {
             var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllBytes(path), JsonOptions)
-                ?? throw new InvalidDataException("配置文件内容为空。");
+                ?? throw new InvalidDataException(UiText.T("配置文件内容为空。"));
             Validate(settings);
             return settings;
         }
         catch (JsonException error)
         {
-            throw new InvalidDataException("portable-mise.json 无法读取，原文件已保留，请修正配置后重试。", error);
+            throw new InvalidDataException(UiText.T("portable-mise.json 无法读取，原文件已保留，请修正配置后重试。"), error);
         }
     }
 
@@ -54,9 +56,9 @@ public sealed class SettingsStore(string appDirectory) : ISettingsStore
         ArgumentNullException.ThrowIfNull(settings);
         MiseEnvironment.ValidatePathEntries(AppPaths.Resolve(settings, root));
         if (settings.LastRegisteredPaths is null || settings.LastRegisteredPaths.Any(string.IsNullOrWhiteSpace))
-            throw new InvalidDataException("记录的终端目录无效，原配置已保留。");
+            throw new InvalidDataException(UiText.T("记录的终端目录无效，原配置已保留。"));
         if (settings.UpdateIntervalHours is < 1 or > 168)
-            throw new InvalidDataException("自动更新间隔应为 1 至 168 小时。");
+            throw new InvalidDataException(UiText.T("自动更新间隔应为 1 至 168 小时。"));
         ProxySupport.Validate(settings);
     }
 }

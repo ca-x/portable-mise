@@ -52,6 +52,58 @@ public static class ViewModelTests
         vm.ToolSpecification = "python@3.13";
         await Execute(vm.InstallToolCommand);
         Check(mise.LastSpec == "python@3.13", "tool installation uses entered specification");
+        vm.ToolSpecification = "rust[mr_boxington=true]@stable mr-boxington go@1.26";
+        vm.QueueToolsCommand.Execute(null);
+        vm.RemoveQueuedToolCommand.Execute(vm.QueuedTools.Last());
+        Check(vm.QueuedTools.Count == 2 && vm.QueuedTools[0].Request.Options?["mr_boxington"] == "true",
+            "queued tool options can be edited independently after parsing and another tag can be removed");
+        mise.PauseBatch = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var resumeBatch = mise.PauseBatch;
+        vm.InstallToolCommand.Execute(null);
+        Check(vm.IsInstallingTools && vm.ToolInstallLine == "正在下载 Rust", "inline progress updates while the batch is in flight");
+        vm.ToolSpecification = "go@1.26";
+        vm.QueueToolsCommand.Execute(null);
+        resumeBatch.SetResult();
+        await ((AsyncCommand)vm.InstallToolCommand).ExecutionTask!;
+        Check(mise.LastBatch.SequenceEqual(["rust@stable", "mr-boxington"]) && vm.QueuedTools.Single().Request.Specification == "go@1.26",
+            "a busy installation leaves newly added tools for the next batch");
+        string exportFixture = Path.Combine(root, "export-fixture.toml");
+        File.WriteAllText(exportFixture, """
+            [tools]
+            rust = { version = "stable", mr_boxington = true, components = ["rust-src", "clippy"] }
+            [tools."cargo:ripgrep"]
+            version = "15"
+            features = ["pcre2"]
+            [tool_alias]
+            custom = "github:owner/tool"
+            [alias.rust]
+            pinned = "1.90.1"
+            [env]
+            RUSTUP_DIST_SERVER = "https://mirror.example"
+            UNRELATED = "do-not-export"
+            """);
+        var cargoFixture = Path.Combine(root, "cargo-fixture.toml");
+        File.WriteAllText(cargoFixture, """
+            [source.crates-io]
+            replace-with = "mirror"
+            [source.mirror]
+            registry = "sparse+https://index.example/"
+            """);
+        string exported = ToolExport.Create([exportFixture],
+            [new("rust", "1.90.1", true, true), new("node", "22", false, true), new("node", "24", true, true)], cargoFixture);
+        var exportTree = Tomlyn.TomlSerializer.Deserialize<Tomlyn.Model.TomlTable>(exported)!;
+        var exportedTools = (Tomlyn.Model.TomlTable)exportTree["tools"]!;
+        var exportedRust = (Tomlyn.Model.TomlTable)exportedTools["rust"]!;
+        Check(exportedRust["mr_boxington"] is true && exportedRust["components"] is Tomlyn.Model.TomlArray { Count: 2 }
+            && exportedTools["node"] is Tomlyn.Model.TomlArray { Count: 2 } && exportedTools.ContainsKey("cargo:ripgrep"),
+            "export TOML keeps typed nested options and all standalone installed versions");
+        Check(exported.Contains("# rust@1.90.1", StringComparison.Ordinal)
+            && exported.Contains("https://mirror.example", StringComparison.Ordinal)
+            && exported.Contains("# [source.mirror]", StringComparison.Ordinal)
+            && !exported.Contains("do-not-export", StringComparison.Ordinal), "export includes inventory and supported mirrors and excludes unrelated workspace environment");
+        Check(((Tomlyn.Model.TomlTable)exportTree["tool_alias"]!)["custom"] is "github:owner/tool" &&
+            ((Tomlyn.Model.TomlTable)((Tomlyn.Model.TomlTable)exportTree["alias"]!)["rust"]!)["pinned"] is "1.90.1",
+            "export keeps workspace backend and version aliases");
         bool proxyNotified = false;
         vm.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(MainViewModel.ProxyStatus)) proxyNotified = true; };
         vm.Settings.ProxyMode = ProxyMode.Custom; vm.Settings.ProxyAddress = "http://127.0.0.1:7890";
@@ -96,12 +148,24 @@ public static class ViewModelTests
     private sealed class FixtureMise : IMiseService
     {
         public int SelfUpdates, ToolUpdates; public string LastSpec = "";
+        public string[] LastBatch = [];
+        public TaskCompletionSource? PauseBatch;
         public Task<string> GetVersionAsync(AppSettings s, CancellationToken ct = default) => Task.FromResult("2026.11.0");
         public Task<IReadOnlyList<ToolInfo>> GetToolsAsync(AppSettings s, CancellationToken ct = default) => Task.FromResult<IReadOnlyList<ToolInfo>>([new("node", "22.0.0", true, true)]);
         public Task<ProcessResult> RunAsync(AppSettings s, IReadOnlyList<string> arguments, Action<string>? log = null, CancellationToken cancellationToken = default) => Task.FromResult(new ProcessResult(0, "", ""));
         public Task UpgradeToolsAsync(AppSettings s, Action<string>? log = null, CancellationToken cancellationToken = default) { ToolUpdates++; return Task.CompletedTask; }
         public Task SelfUpdateAsync(AppSettings s, Action<string>? log = null, CancellationToken cancellationToken = default) { SelfUpdates++; return Task.CompletedTask; }
         public Task InstallToolAsync(AppSettings s, string spec, Action<string>? log = null, CancellationToken cancellationToken = default) { LastSpec = spec; return Task.CompletedTask; }
+        public async Task InstallToolsAsync(AppSettings s, IReadOnlyList<ToolInstallRequest> requests, Action<string>? log = null, CancellationToken cancellationToken = default)
+        {
+            LastBatch = requests.Select(tool => tool.Specification).ToArray();
+            LastSpec = LastBatch[0];
+            if (PauseBatch == null) return;
+            var pause = PauseBatch;
+            PauseBatch = null;
+            log?.Invoke("正在下载 Rust");
+            await pause.Task.WaitAsync(cancellationToken);
+        }
     }
     private sealed class FixtureInstaller : IMiseInstaller
     {

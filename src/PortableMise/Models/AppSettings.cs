@@ -8,6 +8,7 @@ public enum CloseBehavior { Ask, Exit, Tray }
 
 public sealed class AppSettings : INotifyPropertyChanged
 {
+    public string Language { get; set; } = "auto";
     private string miseDirectory = "mise", toolsDirectory = "tools", proxyAddress = "http://127.0.0.1:7890";
     private ProxyMode proxyMode = ProxyMode.System;
     private bool askBeforeClosing = true, closeToTray = true;

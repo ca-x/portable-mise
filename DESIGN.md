@@ -1,22 +1,23 @@
-# Portable mise desktop
+# mise工具箱 · desktop design
 
 ## Direction
 
-Compact Windows utility with restrained Apple-inspired styling. No slogans, hero banners, English marketing captions, decorative statistics, emoji, or imitation macOS window buttons. The official mise favicon remains the application identity.
+Compact Windows workbench with a native title bar, a clean command band and a muted navigation rail. The user-designed toolbox marks the same window, taskbar and tray. The design uses WPF resource dictionaries and shared UI primitives, following wpf-frontend-design for desktop behavior, ui-ux-pro-max for hierarchy and feedback, and ckm:ui-styling for consistent component tokens.
 
 ## Primary workflows
 
 - First installation: show mise path, tools path and proxy mode/address; one primary action is Install mise.
 - Existing files on a new device: show concise terminal registration status; one primary action is Restore environment.
 - Ready environment: one primary action updates mise and tools. Paths and installation details stay in Settings.
-- Three main navigation items: Environment, Tools, Settings. Logs and version/update operations are secondary pages reached from utility actions.
+- The 64 px command band aligns the app identity, current page and terminal action. The 176 px rail separates the three main views (Environment, Tools, Settings) from Updates. The footer reports operation state and offers cancellation where applicable.
+- Tools starts with the install queue and keeps installed versions below. Enter queues tools, and the primary action submits a snapshot. The input stays usable during installation. The compact graphite status strip displays one state line and up to one recent-output line. Its terminal icon opens the complete log. Maintenance and export remain secondary.
 
 ## Tokens
 
-- Sidebar and canvas: #F5F5F7; surface: #FFFFFF; ink: #1D1D1F; muted: #6E6E73; line: #E5E5EA.
-- Single action/selection color: #007AFF; selected tint: #EAF3FF.
+- Canvas #F5F7FA, rail #EEF2F7, surface #FFFFFF, ink #172131, muted #535F70, outline #DCE3EC.
+- Action blue #2458C1, strong text accent #17438F, selected fills #DCE7F9 and #EAF0FD. Graphite console #192230 with mint state text #A8E4CB and neutral output text #E3EBF5.
 - Typography: Segoe UI with Microsoft YaHei UI fallback; headings 20–24, sections 15–16, body 13, metadata 11–12. No custom font dependency.
-- Spacing follows 8 px increments. Page inset 24, section gap 16, control gap 8. Cards radius 10–12.
+- Page edges 24 px, section gap 16 px, control gap 8 px. Cards have an 8 px corner radius.
 - Inputs and action buttons 40 px high. Form label column 112 px, right controls stretch, browse/action column 88–104 px. Rows vertically center labels and controls.
 - Table columns share left/right content boundaries and 16 px cell insets. Paths truncate with full-value tooltips.
 
@@ -28,8 +29,8 @@ Lucide official SVG sources are retained in Assets/Icons with the upstream licen
 
 PathPicker and StatusCard remain templatable controls in the main executable. Template parts tolerate missing/wrong types, old events are removed when the template changes, and visual states are declared in Generic.xaml at each template root.
 
-Low-frequency path/proxy/automation/tray options are grouped in Settings. Operation settings are disabled while work runs; logs, cancellation and navigation stay accessible. Descriptive instructions belong in tooltips or README, except concise state/error text needed to choose an action.
+Low-frequency path, proxy, language, automation and tray options are grouped in Settings. Operation settings are disabled while work runs. Logs, cancellation and navigation stay accessible. Queue item icons carry localized accessible names and a separate accessible hint identifying the affected tool. The primary installation action and inline status stay in the same card.
 
 ## Verification
 
-Capture first-install, restore-needed and ready states, all auxiliary pages and the minimum 1000×700 window from the current build. Check Chinese text, icon consistency, row baselines and all control edges; no feature may be removed to hide a layout defect.
+Capture first-install, restore-needed and ready states, all auxiliary pages and the minimum 1000×700 window from the current build. Check Chinese and English text, icon consistency, row baselines, keyboard focus, and the single- and double-line status states.

@@ -18,7 +18,9 @@ if (args.Contains("--wait"))
     await Task.Delay(TimeSpan.FromMinutes(5));
     return 0;
 }
-if (args.Contains("ls"))
+if (args.FirstOrDefault() == "use")
+    Console.WriteLine(JsonSerializer.Serialize(args));
+else if (args.Contains("ls"))
     Console.WriteLine("{\"node\":[{\"version\":\"22.12.0\",\"active\":true,\"installed\":true}]}");
 else if (args.Contains("--version")) Console.WriteLine("mise test-fixture");
 else Console.WriteLine("fixture operation completed");

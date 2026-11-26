@@ -1,0 +1,22 @@
+<Window x:Class="PortableMise.ToolExportDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="clr-namespace:PortableMise.Localization"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{loc:Tr '导出工具'}" Width="640" Height="445" MinWidth="480" MinHeight="320"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Icon="Assets/mise.ico"
+        Background="{DynamicResource Canvas}" Foreground="{DynamicResource Ink}" FontFamily="{DynamicResource BodyFont}">
+  <Grid Margin="24">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <TextBlock Text="{loc:Tr '工具、已安装版本与选项'}" Style="{StaticResource SectionTitle}" Margin="0,0,0,12" />
+    <TextBox Grid.Row="1" x:Name="Preview" Style="{StaticResource ConsoleText}" Height="Auto" IsReadOnly="True"
+             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+             AutomationProperties.Name="{loc:Tr '导出预览'}" AutomationProperties.AutomationId="ToolExportPreview" />
+    <DockPanel Grid.Row="2" Margin="0,16,0,0">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <Button Content="{loc:Tr '保存文件…'}" Click="SaveFile" AutomationProperties.AutomationId="SaveToolsExportButton" Margin="0,0,8,0"/>
+        <Button Content="{loc:Tr '复制到剪贴板'}" Click="Copy" Style="{StaticResource PrimaryButton}" AutomationProperties.AutomationId="CopyToolsExportButton" />
+      </StackPanel>
+      <TextBlock x:Name="Feedback" VerticalAlignment="Center" Style="{StaticResource Caption}" TextWrapping="Wrap"
+                 AutomationProperties.LiveSetting="Polite" />
+    </DockPanel>
+  </Grid>
+</Window>

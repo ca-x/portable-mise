@@ -2,9 +2,9 @@
 
 Portable mise is an independent desktop interface for mise. It is not an official mise application.
 
-## mise website icon
+## Application artwork
 
-Application and tray artwork is downloaded from the official mise website at https://mise.jdx.dev/favicon.ico and https://mise.jdx.dev/apple-touch-icon.png, as requested for this project. The original mise identity belongs to its respective authors. mise itself is downloaded separately from its official releases and is not bundled with this desktop executable.
+The Portable mise toolbox logo is supplied by the project owner. The program downloads mise separately from its official releases.
 
 ## Lucide icons
 
@@ -21,3 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 ## .NET
 
 The executable is framework-dependent and uses the separately installed Microsoft .NET Desktop Runtime. No .NET runtime or external custom-control assembly is distributed with the program.
+
+## Tomlyn
+
+Tool export uses Tomlyn to preserve TOML 1.1 values, lists, and nested tables. Its BSD 2-Clause license is embedded and retained in docs/licenses/tomlyn.txt. Tomlyn is bundled in the single published executable.

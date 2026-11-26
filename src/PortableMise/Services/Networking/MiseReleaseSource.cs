@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Net.Http;
 using System.Text.Json;
 
+using PortableMise.Localization;
+
 namespace PortableMise.Services.Networking;
 
 public static class MiseReleaseSource
@@ -18,11 +20,11 @@ public static class MiseReleaseSource
                 string[] fields = line.Trim().Split('\t');
                 if (fields.Length != 2 || !Version.TryParse(fields[0].TrimStart('v'), out var version) || version.Build < 0 || version.Revision >= 0 ||
                     !long.TryParse(fields[1], NumberStyles.None, CultureInfo.InvariantCulture, out long timestamp))
-                    throw new InvalidDataException("mise 版本索引格式不受支持。");
+                    throw new InvalidDataException(UiText.T("mise 版本索引格式不受支持。"));
                 if (timestamp <= cutoff.ToUnixTimeSeconds()) versions.Add(version);
             }
             if (versions.Count != 0) return versions.Max()!.ToString(3);
-            throw new InvalidDataException("尚无满足 24 小时发布间隔的稳定 mise 版本。");
+            throw new InvalidDataException(UiText.T("尚无满足 24 小时发布间隔的稳定 mise 版本。"));
         }
         catch (Exception error) when (error is HttpRequestException or IOException or JsonException)
         {
@@ -36,7 +38,7 @@ public static class MiseReleaseSource
                     !Version.TryParse(release.GetProperty("tag_name").GetString()?.TrimStart('v'), out var version) || version.Build < 0 || version.Revision >= 0) continue;
                 versions.Add(version);
             }
-            if (versions.Count == 0) throw new InvalidOperationException("未找到发布满 24 小时的稳定 mise 版本。");
+            if (versions.Count == 0) throw new InvalidOperationException(UiText.T("未找到发布满 24 小时的稳定 mise 版本。"));
             return versions.Max()!.ToString(3);
         }
     }

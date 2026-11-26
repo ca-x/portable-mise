@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 using PortableMise.Models;
 using PortableMise.Services.Networking;
 
+using PortableMise.Localization;
+
 namespace PortableMise.Services;
 
 public sealed class MiseInstaller : IMiseInstaller
@@ -32,11 +34,11 @@ public sealed class MiseInstaller : IMiseInstaller
         if (File.Exists(paths.MiseExecutable) && File.Exists(paths.MiseShimExecutable) &&
             Version.TryParse(installed?.TrimStart('v').Split(' ')[0], out var existing) && existing >= Version.Parse(version))
         {
-            log?.Invoke("mise 已安装且版本无需降级，保留现有工具与配置。");
+            log?.Invoke(UiText.T("mise 已安装且版本无需降级，保留现有工具与配置。"));
             return installed!;
         }
         string architecture = RuntimeInformation.OSArchitecture switch {
-            Architecture.X64 => "x64", Architecture.Arm64 => "arm64", _ => throw new InvalidOperationException("mise 官方 Windows 二进制仅支持 x64 和 ARM64。")
+            Architecture.X64 => "x64", Architecture.Arm64 => "arm64", _ => throw new InvalidOperationException(UiText.T("mise 官方 Windows 二进制仅支持 x64 和 ARM64。"))
         };
         string asset = $"mise-v{version}-windows-{architecture}.zip";
         Directory.CreateDirectory(paths.CacheDirectory);
@@ -44,7 +46,7 @@ public sealed class MiseInstaller : IMiseInstaller
         Directory.CreateDirectory(work);
         try
         {
-            log?.Invoke($"正在下载 mise {version}（{architecture}），代理模式：{settings.ProxyMode}。");
+            log?.Invoke(UiText.F("正在下载 mise {0}（{1}），代理模式：{2}。", version, architecture, settings.ProxyMode));
             string archive = Path.Combine(work, asset);
             var githubBase = new Uri($"https://github.com/jdx/mise/releases/download/v{version}/");
             try
@@ -54,7 +56,7 @@ public sealed class MiseInstaller : IMiseInstaller
             catch (Exception error) when (error is HttpRequestException or IOException)
             {
                 if (File.Exists(archive)) File.Delete(archive);
-                log?.Invoke("官方镜像暂不可用，正在使用 GitHub Releases。");
+                log?.Invoke(UiText.T("官方镜像暂不可用，正在使用 GitHub Releases。"));
                 await HttpDownloads.DownloadAsync(client, new Uri(githubBase, asset), archive, 128L * 1024 * 1024, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             string checksums = await HttpDownloads.GetTextAsync(client, new Uri(githubBase, "SHASUMS256.txt"), 2 * 1024 * 1024, cancellationToken).ConfigureAwait(false);
@@ -63,7 +65,7 @@ public sealed class MiseInstaller : IMiseInstaller
             await VerifiedMiseArchive.ExtractAsync(archive, staged, cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             BinaryPairDeployment.Apply(staged, paths.MiseBinDirectory, log);
-            log?.Invoke("mise.exe 与 mise-shim.exe 已成对安装，SHA256 校验通过。");
+            log?.Invoke(UiText.T("mise.exe 与 mise-shim.exe 已成对安装，SHA256 校验通过。"));
             return version;
         }
         finally { Cleanup(work, paths.CacheDirectory, log); }
@@ -79,11 +81,11 @@ public sealed class MiseInstaller : IMiseInstaller
         {
             using var response = await client.GetAsync("https://github.com/jdx/mise/releases/latest", HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            return $"连接成功 · {settings.ProxyMode} · GitHub HTTP {(int)response.StatusCode}";
+            return UiText.F("连接成功 · {0} · GitHub HTTP {1}", settings.ProxyMode, (int)response.StatusCode);
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            throw new InvalidOperationException("代理连接测试超时，请检查代理地址及网络连接。");
+            throw new InvalidOperationException(UiText.T("代理连接测试超时，请检查代理地址及网络连接。"));
         }
     }
 
@@ -121,8 +123,8 @@ public sealed class MiseInstaller : IMiseInstaller
         string full = Path.GetFullPath(directory);
         string expected = Path.GetFullPath(cacheRoot).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         if (!full.StartsWith(expected, StringComparison.OrdinalIgnoreCase) || (new DirectoryInfo(full).Attributes & FileAttributes.ReparsePoint) != 0)
-            throw new InvalidOperationException("安装缓存目录不在预期位置，未清理。");
+            throw new InvalidOperationException(UiText.T("安装缓存目录不在预期位置，未清理。"));
         try { Directory.Delete(full, true); }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { log?.Invoke("安装缓存仍在使用，可稍后清理。"); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { log?.Invoke(UiText.T("安装缓存仍在使用，可稍后清理。")); }
     }
 }

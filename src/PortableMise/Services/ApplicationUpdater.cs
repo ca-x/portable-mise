@@ -10,6 +10,8 @@ using PortableMise.Models;
 using PortableMise.Services.AppUpdate;
 using PortableMise.Services.Networking;
 
+using PortableMise.Localization;
+
 namespace PortableMise.Services;
 
 public sealed class ApplicationUpdater : IApplicationUpdater
@@ -34,7 +36,7 @@ public sealed class ApplicationUpdater : IApplicationUpdater
     {
         Architecture.X64 => "win-x64",
         Architecture.Arm64 => "win-arm64",
-        _ => throw new InvalidOperationException("桌面程序更新仅支持 Windows x64 和 ARM64。")
+        _ => throw new InvalidOperationException(UiText.T("桌面程序更新仅支持 Windows x64 和 ARM64。"))
     };
 
     private static Version Normalize(Version version) => new(version.Major, version.Minor, Math.Max(version.Build, 0), Math.Max(version.Revision, 0));
@@ -43,7 +45,7 @@ public sealed class ApplicationUpdater : IApplicationUpdater
     {
         string normalized = value.StartsWith('v') ? value[1..] : value;
         if (!Version.TryParse(normalized, out var version) || version.Build < 0 || version.Revision > 0)
-            throw new InvalidOperationException("程序更新版本号格式不受支持。");
+            throw new InvalidOperationException(UiText.T("程序更新版本号格式不受支持。"));
         return Normalize(version);
     }
 
@@ -83,7 +85,7 @@ public sealed class ApplicationUpdater : IApplicationUpdater
         }
         catch (Exception error) when (error is JsonException or KeyNotFoundException or FormatException or InvalidOperationException)
         {
-            throw new InvalidOperationException("GitHub 程序更新信息格式无效。", error);
+            throw new InvalidOperationException(UiText.T("GitHub 程序更新信息格式无效。"), error);
         }
     }
 
@@ -96,18 +98,18 @@ public sealed class ApplicationUpdater : IApplicationUpdater
         {
             if (response.StatusCode == HttpStatusCode.NotFound) return null;
             response.EnsureSuccessStatusCode();
-            final = response.RequestMessage?.RequestUri ?? throw new InvalidOperationException("无法确认程序发布地址。");
+            final = response.RequestMessage?.RequestUri ?? throw new InvalidOperationException(UiText.T("无法确认程序发布地址。"));
         }
         const string tagPrefix = "/ca-x/portable-mise/releases/tag/";
         if (final.Scheme != Uri.UriSchemeHttps || final.Host != "github.com" || !final.IsDefaultPort || final.UserInfo.Length != 0 ||
             final.Query.Length != 0 || final.Fragment.Length != 0)
-            throw new InvalidOperationException("程序发布页面跳转到了未知来源。");
+            throw new InvalidOperationException(UiText.T("程序发布页面跳转到了未知来源。"));
         if (final.AbsolutePath == "/ca-x/portable-mise/releases") return null;
         if (!final.AbsolutePath.StartsWith(tagPrefix, StringComparison.Ordinal))
-            throw new InvalidOperationException("程序发布页面跳转到了未知来源。");
+            throw new InvalidOperationException(UiText.T("程序发布页面跳转到了未知来源。"));
         string tag = final.AbsolutePath[tagPrefix.Length..];
         Version version = ParseVersion(tag);
-        if (tag != "v" + version.ToString(3)) throw new InvalidOperationException("程序发布页面版本格式不受支持。");
+        if (tag != "v" + version.ToString(3)) throw new InvalidOperationException(UiText.T("程序发布页面版本格式不受支持。"));
         if (version <= currentVersion) return null;
         string html;
         try
@@ -134,7 +136,7 @@ public sealed class ApplicationUpdater : IApplicationUpdater
         string prefix = ReleasePrefix + "v" + version + "/";
         if (release.AssetName != expected || release.DownloadUrl.AbsoluteUri != prefix + expected ||
             release.ChecksumsUrl.AbsoluteUri != prefix + "SHA256SUMS.txt")
-            throw new InvalidOperationException("更新附件不属于当前架构或受支持的程序发布来源。");
+            throw new InvalidOperationException(UiText.T("更新附件不属于当前架构或受支持的程序发布来源。"));
     }
 
     public async Task<StagedAppUpdate> StageAsync(AppRelease release, AppSettings settings, Action<string>? log = null, CancellationToken cancellationToken = default)
@@ -150,11 +152,11 @@ public sealed class ApplicationUpdater : IApplicationUpdater
         string destination = Path.Combine(directory, release.AssetName);
         try
         {
-            log?.Invoke("正在下载桌面程序更新…");
+            log?.Invoke(UiText.T("正在下载桌面程序更新…"));
             await HttpDownloads.DownloadAsync(client, release.DownloadUrl, destination, 134217728, null, cancellationToken).ConfigureAwait(false);
             string actual = Convert.ToHexString(SHA256.HashData(await File.ReadAllBytesAsync(destination, cancellationToken).ConfigureAwait(false))).ToLowerInvariant();
-            if (!actual.Equals(expected, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("程序更新 SHA256 不一致，未执行附件。");
-            log?.Invoke("桌面程序更新已通过 SHA256 校验。");
+            if (!actual.Equals(expected, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException(UiText.T("程序更新 SHA256 不一致，未执行附件。"));
+            log?.Invoke(UiText.T("桌面程序更新已通过 SHA256 校验。"));
             return new StagedAppUpdate(destination, actual, release.Version);
         }
         catch
@@ -176,17 +178,17 @@ public sealed class ApplicationUpdater : IApplicationUpdater
             if (name.StartsWith("./", StringComparison.Ordinal)) name = name[2..];
             if (name != asset) continue;
             if (!UpdateApplier.IsHash(fields[0]) || expected != null && !expected.Equals(fields[0], StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("更新附件校验记录无效。");
+                throw new InvalidOperationException(UiText.T("更新附件校验记录无效。"));
             expected = fields[0];
         }
-        return expected ?? throw new InvalidOperationException("未找到此程序附件的 SHA256，未下载或执行更新。");
+        return expected ?? throw new InvalidOperationException(UiText.T("未找到此程序附件的 SHA256，未下载或执行更新。"));
     }
 
     public void LaunchApply(StagedAppUpdate update)
     {
-        string target = Environment.ProcessPath ?? throw new InvalidOperationException("无法确定当前程序位置。");
+        string target = Environment.ProcessPath ?? throw new InvalidOperationException(UiText.T("无法确定当前程序位置。"));
         if (!Path.TrimEndingDirectorySeparator(Path.GetDirectoryName(Path.GetFullPath(target))!).Equals(root, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("当前程序不在配置目录中，无法自动替换。");
+            throw new InvalidOperationException(UiText.T("当前程序不在配置目录中，无法自动替换。"));
         UpdateApplier.ValidateStagedFile(update.FilePath, target, update.Sha256);
         using var current = Process.GetCurrentProcess();
         var start = new ProcessStartInfo(update.FilePath) { UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = Path.GetDirectoryName(update.FilePath)! };
@@ -194,7 +196,7 @@ public sealed class ApplicationUpdater : IApplicationUpdater
         using (var input = File.OpenRead(target)) targetHash = Convert.ToHexString(SHA256.HashData(input));
         foreach (string value in new[] { "--apply-update", "--target", target, "--parent-pid", current.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), "--parent-start", current.StartTime.ToUniversalTime().Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture), "--sha256", update.Sha256, "--target-sha256", targetHash })
             start.ArgumentList.Add(value);
-        using var helper = Process.Start(start) ?? throw new InvalidOperationException("无法启动程序更新助手。");
+        using var helper = Process.Start(start) ?? throw new InvalidOperationException(UiText.T("无法启动程序更新助手。"));
     }
 
     public static Task<bool> TryApplyUpdateModeAsync(string[] args, Action<string>? log = null) => UpdateApplier.TryRunAsync(args, log);

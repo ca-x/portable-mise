@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using PortableMise.Models;
 
+using PortableMise.Localization;
+
 namespace PortableMise.Services;
 
 public static partial class ProxySupport
@@ -12,9 +14,9 @@ public static partial class ProxySupport
 
     public static void Validate(AppSettings settings)
     {
-        if (!Enum.IsDefined(settings.ProxyMode)) throw new InvalidOperationException("代理模式不受支持。");
+        if (!Enum.IsDefined(settings.ProxyMode)) throw new InvalidOperationException(UiText.T("代理模式不受支持。"));
         if (Uri.TryCreate(settings.ProxyAddress?.Trim(), UriKind.Absolute, out var address) && address.UserInfo.Length != 0)
-            throw new InvalidOperationException("代理地址请勿包含用户名或密码；可使用本机代理客户端提供的无认证转发地址。");
+            throw new InvalidOperationException(UiText.T("代理地址请勿包含用户名或密码；可使用本机代理客户端提供的无认证转发地址。"));
         if (settings.ProxyMode == ProxyMode.Custom) _ = CustomProxy(settings);
     }
 
@@ -23,9 +25,9 @@ public static partial class ProxySupport
         if (!Uri.TryCreate(settings.ProxyAddress?.Trim(), UriKind.Absolute, out var address) ||
             address.Scheme is not ("http" or "https" or "socks5") || string.IsNullOrWhiteSpace(address.Host) ||
             address.Port is <= 0 or > 65535 || address.AbsolutePath != "/" || address.Query.Length != 0 || address.Fragment.Length != 0)
-            throw new InvalidOperationException("请输入有效的 HTTP、HTTPS 或 SOCKS5 代理，例如 http://127.0.0.1:7890。");
+            throw new InvalidOperationException(UiText.T("请输入有效的 HTTP、HTTPS 或 SOCKS5 代理，例如 http://127.0.0.1:7890。"));
         if (address.UserInfo.Length != 0)
-            throw new InvalidOperationException("代理地址请勿包含用户名或密码；可使用本机代理客户端提供的无认证转发地址。");
+            throw new InvalidOperationException(UiText.T("代理地址请勿包含用户名或密码；可使用本机代理客户端提供的无认证转发地址。"));
         return address;
     }
 

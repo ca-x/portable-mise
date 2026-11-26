@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Data;
 using PortableMise.Models;
 
+using PortableMise.Localization;
+
 namespace PortableMise.Converters;
 
 public sealed class BooleanVisibilityConverter : IValueConverter
@@ -25,10 +27,10 @@ public sealed class ProxyModeLabelConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value switch
     {
-        ProxyMode.System => "跟随系统代理",
-        ProxyMode.Disabled => "直接连接",
-        ProxyMode.Custom => "自定义 HTTP / SOCKS5",
-        _ => "请选择代理模式"
+        ProxyMode.System => UiText.T("跟随系统代理"),
+        ProxyMode.Disabled => UiText.T("直接连接"),
+        ProxyMode.Custom => UiText.T("自定义 HTTP / SOCKS5"),
+        _ => UiText.T("请选择代理模式")
     };
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
@@ -37,7 +39,7 @@ public sealed class ProxyModeLabelConverter : IValueConverter
 public sealed class ActiveToolLabelConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        => value is true ? "当前使用" : "已安装";
+        => value is true ? UiText.T("当前使用") : UiText.T("已安装");
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
@@ -57,9 +59,9 @@ public sealed class CloseBehaviorLabelConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value.ToString() switch
     {
-        "Exit" => "退出程序",
-        "Tray" => "收起到托盘",
-        _ => "每次询问"
+        "Exit" => UiText.T("退出程序"),
+        "Tray" => UiText.T("收起到托盘"),
+        _ => UiText.T("每次询问")
     };
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

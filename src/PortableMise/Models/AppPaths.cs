@@ -1,3 +1,5 @@
+using PortableMise.Localization;
+
 namespace PortableMise.Models;
 
 public sealed record AppPaths(string AppDirectory, string MiseRoot, string ToolsRoot)
@@ -20,9 +22,9 @@ public sealed record AppPaths(string AppDirectory, string MiseRoot, string Tools
 
     private static string ResolveDirectory(string value, string root)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new InvalidOperationException("目录不能为空。");
+        if (string.IsNullOrWhiteSpace(value)) throw new InvalidOperationException(UiText.T("目录不能为空。"));
         if ((Path.IsPathRooted(value) && !Path.IsPathFullyQualified(value)) || (!Path.IsPathRooted(value) && value.Contains(':')))
-            throw new InvalidOperationException("请使用完整目录或相对程序目录的路径，不支持盘符相对目录。");
+            throw new InvalidOperationException(UiText.T("请使用完整目录或相对程序目录的路径，不支持盘符相对目录。"));
         return Path.GetFullPath(value, root);
     }
 

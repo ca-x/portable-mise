@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using PortableMise.Localization;
 using PortableMise.Models;
 using PortableMise.Services;
 
@@ -11,6 +12,9 @@ namespace PortableMise.ViewModels;
 
 public sealed partial class MainViewModel : ObservableObject, IDisposable
 {
+    public sealed record LanguageChoice(string Id, string Label);
+    public IReadOnlyList<LanguageChoice> LanguageChoices { get; } =
+        [new("auto", UiText.T("跟随系统")), new("zh-CN", "简体中文"), new("en-US", "English")];
     private readonly string appDirectory;
     private readonly ISettingsStore store;
     private readonly IMiseService mise;
@@ -25,9 +29,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private AppSettings settings;
     private bool busy, installed, terminalConfigured, hasAppUpdate;
     private int page;
-    private string version = "未安装", status = "就绪", detail = "";
+    private string version = UiText.T("未安装"), status = UiText.T("就绪"), detail = "";
     private string filter = "", specification = "", commandText = "doctor", logText = "";
-    private string lastOperation = "尚无操作", appUpdateText = "尚未检查桌面程序更新。";
+    private string lastOperation = UiText.T("尚无操作"), appUpdateText = UiText.T("尚未检查桌面程序更新。");
 
     public MainViewModel(string root, AppSettings initialSettings, ISettingsStore settingsStore, IMiseService miseService,
         IMiseInstaller miseInstaller, ITerminalIntegration terminalIntegration, IApplicationUpdater applicationUpdater)
@@ -52,7 +56,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public bool NeedsSetup => !IsInstalled;
     public bool NeedsRestore => IsInstalled && !IsTerminalConfigured;
     public bool IsEnvironmentReady => IsInstalled && IsTerminalConfigured;
-    public string PrimaryActionText => NeedsSetup ? "安装 mise" : NeedsRestore ? "恢复环境" : "更新环境";
+    public string PrimaryActionText => UiText.T(NeedsSetup ? "安装 mise" : NeedsRestore ? "恢复环境" : "更新环境");
     public ICommand PrimaryActionCommand => NeedsSetup ? InstallCommand : NeedsRestore ? RestoreCommand : UpdateAllCommand;
     public bool IsBusy { get => busy; private set { Set(ref busy, value); Notify(nameof(CanOperate)); CommandManager.InvalidateRequerySuggested(); } }
     public bool CanOperate => !IsBusy;
@@ -61,14 +65,22 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public string LastOperation { get => lastOperation; private set => Set(ref lastOperation, value); }
     public string LogText { get => logText; private set => Set(ref logText, value); }
     public string ToolFilter { get => filter; set { if (Set(ref filter, value)) FilteredTools.Refresh(); } }
-    public string ToolSpecification { get => specification; set => Set(ref specification, value); }
+    public string ToolSpecification
+    {
+        get => specification;
+        set
+        {
+            if (!Set(ref specification, value)) return;
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
     public string CommandText { get => commandText; set => Set(ref commandText, value); }
     public bool HasAppUpdate { get => hasAppUpdate; private set => Set(ref hasAppUpdate, value); }
     public string AppUpdateText { get => appUpdateText; private set => Set(ref appUpdateText, value); }
     public string ApplicationVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.1.0";
     public string ResolvedMiseDirectory => ResolveDisplay(true);
     public string ResolvedToolsDirectory => ResolveDisplay(false);
-    public string ProxyStatus => Settings.ProxyMode switch { ProxyMode.Custom => "自定义代理", ProxyMode.Disabled => "直连", _ => "系统代理" };
+    public string ProxyStatus => UiText.T(Settings.ProxyMode switch { ProxyMode.Custom => "自定义代理", ProxyMode.Disabled => "直连", _ => "系统代理" });
     public CloseBehavior CloseBehaviorChoice
     {
         get => Settings.AskBeforeClosing ? CloseBehavior.Ask : Settings.CloseToTray ? CloseBehavior.Tray : CloseBehavior.Exit;
@@ -80,13 +92,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
     }
     public int CurrentPage { get => page; set { if (Set(ref page, value)) Notify(nameof(PageTitle)); } }
-    public string PageTitle => CurrentPage switch { 1 => "工具", 2 => "终端", 3 => "程序更新", 4 => "设置", _ => "环境" };
+    public string PageTitle => UiText.T(CurrentPage switch { 1 => "工具", 2 => "终端", 3 => "程序更新", 4 => "设置", _ => "环境" });
     public event Action<StagedAppUpdate>? ApplicationUpdateReady;
 
     private string ResolveDisplay(bool binary)
     {
         try { var paths = AppPaths.Resolve(Settings, appDirectory); return binary ? paths.MiseRoot : paths.ToolsRoot; }
-        catch (Exception error) when (error is ArgumentException or InvalidOperationException or NotSupportedException) { return "请检查路径设置"; }
+        catch (Exception error) when (error is ArgumentException or InvalidOperationException or NotSupportedException) { return UiText.T("请检查路径设置"); }
     }
     private void NotifyPaths() { Notify(nameof(ResolvedMiseDirectory)); Notify(nameof(ResolvedToolsDirectory)); Notify(nameof(ProxyStatus)); }
     private void OnSettingsChanged(object? sender, PropertyChangedEventArgs e) { NotifyPaths(); Notify(nameof(CloseBehaviorChoice)); }

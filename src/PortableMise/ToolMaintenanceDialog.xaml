@@ -1,0 +1,133 @@
+<Window x:Class="PortableMise.ToolMaintenanceDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="clr-namespace:PortableMise.Localization"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{loc:Tr '工具配置与维护'}" Width="700" MinWidth="600" Height="655" MinHeight="550"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Icon="Assets/mise.ico"
+        Background="{DynamicResource Canvas}" Foreground="{DynamicResource Ink}"
+        FontFamily="{DynamicResource BodyFont}" UseLayoutRounding="True">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="24,24,24,8">
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <TextBlock Text="{loc:Tr '工具配置'}" Style="{StaticResource SectionTitle}" Margin="0,0,0,12" />
+            <WrapPanel>
+              <Button Content="{loc:Tr '编辑 mise 配置'}" Click="OpenMiseConfig" Margin="0,0,8,8"
+                      AutomationProperties.AutomationId="OpenMiseConfigButton" />
+              <Button Content="{loc:Tr '编辑便携 Cargo 配置'}" Click="OpenCargoConfig"
+                      Margin="0,0,0,8" AutomationProperties.AutomationId="OpenCargoConfigButton" />
+            </WrapPanel>
+            <Expander Header="{loc:Tr 'Rust 镜像与配置示例'}" Margin="0,4,0,0">
+              <StackPanel Margin="0,8,0,0">
+                <Grid x:Name="RustMirrorFields" Margin="0,0,0,8">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="112" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="{loc:Tr 'Rust 工具链源'}" VerticalAlignment="Center" />
+                  <TextBox x:Name="RustDistServerBox" Grid.Column="1" ToolTip="{loc:Tr 'RUSTUP_DIST_SERVER，例如 https://rsproxy.cn'}"
+                           AutomationProperties.Name="{loc:Tr 'Rust 工具链源'}" AutomationProperties.AutomationId="RustDistServerBox" />
+                  <TextBlock Grid.Row="1" Text="{loc:Tr 'Rustup 更新源'}" VerticalAlignment="Center" Margin="0,8,0,0" />
+                  <TextBox x:Name="RustUpdateRootBox" Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"
+                           ToolTip="{loc:Tr 'RUSTUP_UPDATE_ROOT，例如 https://rsproxy.cn/rustup'}"
+                           AutomationProperties.Name="{loc:Tr 'Rustup 更新源'}" AutomationProperties.AutomationId="RustUpdateRootBox" />
+                  <Button Grid.Row="2" Grid.Column="1" Content="{loc:Tr '保存 Rust 镜像'}" Click="SaveRustMirrors"
+                          HorizontalAlignment="Right" Margin="0,8,0,0" AutomationProperties.AutomationId="SaveRustMirrorsButton" />
+                </Grid>
+                <TextBlock Text="{loc:Tr '只保存填写的地址。清除地址可编辑 mise 配置。便携 Cargo 需在 mise 的 [env] 中启用 CARGO_HOME。'}"
+                           Style="{StaticResource Caption}" TextWrapping="Wrap" />
+                <WrapPanel Margin="0,8,0,0">
+                  <Button Content="{loc:Tr '复制 mise 示例'}" Click="CopyMiseExample" Style="{StaticResource QuietButton}"
+                          Margin="0,0,8,0" AutomationProperties.AutomationId="CopyMiseExampleButton" />
+                  <Button Content="{loc:Tr '复制 Cargo 示例'}" Click="CopyCargoExample" Style="{StaticResource QuietButton}"
+                          AutomationProperties.AutomationId="CopyCargoExampleButton" />
+                </WrapPanel>
+                <TextBlock TextWrapping="Wrap">
+                  <Hyperlink NavigateUri="https://mise.jdx.dev/lang/rust.html" RequestNavigate="OpenDocumentation">Rust</Hyperlink>
+                  <Run Text="  ·  " />
+                  <Hyperlink NavigateUri="https://mise.jdx.dev/core-tools.html" RequestNavigate="OpenDocumentation"><Run Text="{loc:Tr '语言工具'}" /></Hyperlink>
+                  <Run Text="  ·  " />
+                  <Hyperlink NavigateUri="https://mise.jdx.dev/dev-tools/backends/" RequestNavigate="OpenDocumentation"><Run Text="{loc:Tr '安装后端'}" /></Hyperlink>
+                  <Run Text="  ·  " />
+                  <Hyperlink NavigateUri="https://mise.jdx.dev/dev-tools/tool-options.html" RequestNavigate="OpenDocumentation"><Run Text="{loc:Tr '工具选项'}" /></Hyperlink>
+                  <Run Text="  ·  " />
+                  <Hyperlink NavigateUri="https://mise.jdx.dev/hooks.html" RequestNavigate="OpenDocumentation"><Run Text="{loc:Tr '前后置操作'}" /></Hyperlink>
+                </TextBlock>
+              </StackPanel>
+            </Expander>
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <TextBlock Text="{loc:Tr '维护'}" Style="{StaticResource SectionTitle}" Margin="0,0,0,12" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <ComboBox x:Name="OperationPicker" SelectedValuePath="Tag" SelectionChanged="OnOperationChanged"
+                        AutomationProperties.Name="{loc:Tr '维护操作'}" AutomationProperties.AutomationId="MaintenanceOperationPicker">
+                <ComboBoxItem Content="{loc:Tr '应用已声明的 WinGet 软件包'}" Tag="Winget" />
+                <ComboBoxItem Content="{loc:Tr '清理未使用的工具版本'}" Tag="UserPrune" />
+                <ComboBoxItem Content="{loc:Tr '预览共享系统工具清理'}" Tag="SystemPrune" />
+              </ComboBox>
+              <Button x:Name="PreviewButton" Grid.Column="1" Content="{loc:Tr '预览'}" Click="PreviewOperation" Margin="8,0,0,0"
+                      AutomationProperties.AutomationId="MaintenancePreviewButton" />
+              <Button x:Name="ApplyButton" Grid.Column="2" Content="{loc:Tr '确认执行'}" Click="ApplyOperation" Margin="8,0,0,0"
+                      Style="{StaticResource PrimaryButton}" IsEnabled="False" AutomationProperties.AutomationId="MaintenanceApplyButton" />
+            </Grid>
+            <TextBlock x:Name="OperationHint" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,8,0,12" />
+            <TextBox x:Name="OutputBox" Style="{StaticResource ConsoleText}" IsReadOnly="True" Height="100" Visibility="Collapsed"
+                     TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                     AutomationProperties.Name="{loc:Tr '维护输出'}" AutomationProperties.AutomationId="MaintenanceOutputBox" />
+            <TextBlock Margin="0,10,0,0" TextWrapping="Wrap">
+              <Hyperlink NavigateUri="https://mise.jdx.dev/bootstrap/packages/" RequestNavigate="OpenDocumentation"><Run Text="{loc:Tr '软件包'}" /></Hyperlink>
+              <Run Text="  ·  " />
+              <Hyperlink NavigateUri="https://mise.jdx.dev/dev-tools/system-installs.html#remove-unused-system-installs" RequestNavigate="OpenDocumentation"><Run Text="{loc:Tr '系统工具清理'}" /></Hyperlink>
+            </TextBlock>
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center" Margin="0,0,8,0">
+              <TextBlock Text="PowerShell" Style="{StaticResource SectionTitle}" />
+              <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,0">
+                <Hyperlink NavigateUri="https://mise.jdx.dev/shell-setup.html#powershell" RequestNavigate="OpenDocumentation"><Run Text="{loc:Tr '激活说明'}" /></Hyperlink>
+              </TextBlock>
+            </StackPanel>
+            <Button Grid.Column="1" Content="{loc:Tr '复制激活命令'}" Click="CopyPowerShellActivation"
+                    ToolTip="{loc:Tr '在已配置 mise 的 PowerShell 中执行，可用于当前会话。'}"
+                    AutomationProperties.AutomationId="CopyPowerShellActivationButton" />
+          </Grid>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+    <Border Grid.Row="1" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="24,12">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="StatusText" Style="{StaticResource Caption}" VerticalAlignment="Center" TextWrapping="Wrap"
+                   Margin="0,0,8,0" AutomationProperties.LiveSetting="Polite" />
+        <Button x:Name="CancelButton" Grid.Column="1" Content="{loc:Tr '取消操作'}" Click="CancelOperation" Visibility="Collapsed" Margin="0,0,8,0" />
+        <Button Grid.Column="2" Content="{loc:Tr '关闭'}" Click="CloseDialog" IsCancel="True" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

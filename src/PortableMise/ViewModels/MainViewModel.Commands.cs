@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
+using PortableMise.Localization;
 using PortableMise.Models;
 using PortableMise.Services;
 
@@ -49,8 +50,8 @@ public sealed partial class MainViewModel
         UpdateMiseCommand = Action("更新 mise", async (s, ct) => { await mise.SelfUpdateAsync(s, Log, ct); s.LastMiseUpdateUtc = DateTimeOffset.UtcNow; await CommitSettingsAsync(s, ct); await RefreshCoreAsync(s, ct); });
         UpdateAllCommand = Action("更新 mise 和工具", async (s, ct) => { await mise.SelfUpdateAsync(s, Log, ct); await mise.UpgradeToolsAsync(s, Log, ct); s.LastMiseUpdateUtc = s.LastToolsUpdateUtc = DateTimeOffset.UtcNow; await CommitSettingsAsync(s, ct); await RefreshCoreAsync(s, ct); });
         TestProxyCommand = Action("测试代理连接", async (s, ct) => Log(await installer.TestProxyAsync(s, ct)));
-        SaveSettingsCommand = Action("保存设置", async (s, ct) => { await CommitSettingsAsync(s, ct); await RefreshCoreAsync(s, ct); Log("设置已保存。"); });
-        InstallToolCommand = Action("安装开发工具", async (s, ct) => { await mise.InstallToolAsync(s, ToolSpecification, Log, ct); await RefreshCoreAsync(s, ct); });
+        SaveSettingsCommand = Action("保存设置", async (s, ct) => { await CommitSettingsAsync(s, ct); await RefreshCoreAsync(s, ct); Log(UiText.T("设置已保存。")); });
+        InitializeToolCommands();
         RunMiseCommand = Action("运行 mise", async (s, ct) => { var result = await mise.RunAsync(s, CommandArguments.Parse(CommandText), Log, ct); result.EnsureSuccess(); });
         CheckAppUpdateCommand = Action("检查桌面程序更新", CheckApplicationUpdateAsync);
         ApplyAppUpdateCommand = Action("更新桌面程序", StageApplicationUpdateAsync);
@@ -73,17 +74,17 @@ public sealed partial class MainViewModel
     private static void ShowLicense()
     {
         var assembly = typeof(MainViewModel).Assembly;
-        string Read(string resource) { using var stream = assembly.GetManifestResourceStream(resource) ?? throw new InvalidOperationException("未找到许可信息。"); using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
+        string Read(string resource) { using var stream = assembly.GetManifestResourceStream(resource) ?? throw new InvalidOperationException(UiText.T("未找到许可信息。")); using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
         string licenses = string.Join(Environment.NewLine + Environment.NewLine, assembly.GetManifestResourceNames().Where(name => name.StartsWith("PortableMise.Licenses.", StringComparison.Ordinal)).OrderBy(name => name).Select(Read));
         var text = new System.Windows.Controls.TextBox { Text = Read("PortableMise.License.txt") + Environment.NewLine + Read("PortableMise.Notices.txt") + Environment.NewLine + licenses, IsReadOnly = true,
             TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto, Margin = new Thickness(16), BorderThickness = new Thickness(0), Height = double.NaN, VerticalAlignment = VerticalAlignment.Stretch };
-        new Window { Title = "许可证", Width = 680, Height = 540, MinWidth = 480, MinHeight = 360, Content = text, Owner = System.Windows.Application.Current?.MainWindow,
+        new Window { Title = UiText.T("许可证"), Width = 680, Height = 540, MinWidth = 480, MinHeight = 360, Content = text, Owner = System.Windows.Application.Current?.MainWindow,
             WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
     }
     private void BrowsePath(bool binary)
     {
         try {
-            var dialog = new OpenFolderDialog { Title = binary ? "选择 mise 所在目录" : "选择工具数据目录", Multiselect = false };
+            var dialog = new OpenFolderDialog { Title = UiText.T(binary ? "选择 mise 所在目录" : "选择工具数据目录"), Multiselect = false };
             if (dialog.ShowDialog() != true) return;
             var copy = Settings.Copy();
             string selected = AppPaths.PortablePath(dialog.FolderName, appDirectory);

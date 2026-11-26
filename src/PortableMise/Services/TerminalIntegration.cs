@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using PortableMise.Models;
 
+using PortableMise.Localization;
+
 namespace PortableMise.Services;
 
 public sealed class TerminalIntegration(string appDirectory, IMiseService mise, IUserEnvironmentStore? environment = null) : ITerminalIntegration
@@ -24,7 +26,7 @@ public sealed class TerminalIntegration(string appDirectory, IMiseService mise, 
         var paths = AppPaths.Resolve(settings, root);
         MiseEnvironment.ValidatePathEntries(paths);
         if (!File.Exists(paths.MiseExecutable) || !File.Exists(paths.MiseShimExecutable))
-            throw new InvalidOperationException("需要 mise.exe 和 mise-shim.exe，请先完成一键安装。");
+            throw new InvalidOperationException(UiText.T("需要 mise.exe 和 mise-shim.exe，请先完成一键安装。"));
         MiseEnvironment.EnsureDirectories(paths);
         var result = await mise.RunAsync(settings, new[] { "reshim" }, log, cancellationToken).ConfigureAwait(false);
         result.EnsureSuccess();
@@ -51,23 +53,23 @@ public sealed class TerminalIntegration(string appDirectory, IMiseService mise, 
             foreach (string name in written.AsEnumerable().Reverse())
                 try { environment.Write(name, previous[name]); }
                 catch (Exception error) { rollbackFailures.Add(error); }
-            if (rollbackFailures.Count != 0) throw new AggregateException("终端设置写入失败，部分旧值也未能恢复，请检查用户环境变量。", new[] { failure }.Concat(rollbackFailures));
+            if (rollbackFailures.Count != 0) throw new AggregateException(UiText.T("终端设置写入失败，部分旧值也未能恢复，请检查用户环境变量。"), new[] { failure }.Concat(rollbackFailures));
             throw;
         }
         settings.LastRegisteredPaths = [.. managed];
         environment.Broadcast();
-        log?.Invoke("终端环境已恢复。重新打开终端后可使用 mise 和工具命令。");
+        log?.Invoke(UiText.T("终端环境已恢复。重新打开终端后可使用 mise 和工具命令。"));
     }
 
     public void OpenTerminal(AppSettings settings)
     {
         var paths = AppPaths.Resolve(settings, root);
-        if (!File.Exists(paths.MiseExecutable)) throw new InvalidOperationException("请先安装 mise。");
+        if (!File.Exists(paths.MiseExecutable)) throw new InvalidOperationException(UiText.T("请先安装 mise。"));
         MiseEnvironment.EnsureDirectories(paths);
         var start = new ProcessStartInfo("powershell.exe") { UseShellExecute = false, WorkingDirectory = paths.AppDirectory };
         start.ArgumentList.Add("-NoLogo");
         start.ArgumentList.Add("-NoExit");
         MiseEnvironment.Apply(start, settings, paths);
-        _ = Process.Start(start) ?? throw new InvalidOperationException("无法打开 PowerShell。");
+        _ = Process.Start(start) ?? throw new InvalidOperationException(UiText.T("无法打开 PowerShell。"));
     }
 }

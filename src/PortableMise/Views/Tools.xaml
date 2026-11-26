@@ -1,33 +1,159 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:PortableMise.Controls">
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="clr-namespace:PortableMise.Localization" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:PortableMise.Controls">
   <DataTemplate x:Key="ToolsPage">
-    <Grid Margin="24,24,24,24">
+    <Grid Margin="24,20,24,20">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
-        <RowDefinition Height="*" />
         <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
       </Grid.RowDefinitions>
-      <Grid Margin="0,0,0,16">
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
+          <DockPanel Margin="0,0,0,12">
+            <Button DockPanel.Dock="Right" Content="{loc:Tr '配置与维护'}" Command="{Binding ToolMaintenanceCommand}"
+                    Style="{StaticResource QuietButton}" Height="32" MinHeight="32" Padding="8,2"
+                    AutomationProperties.AutomationId="ToolMaintenanceButton" />
+            <TextBlock Text="{loc:Tr '安装队列'}" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+          </DockPanel>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid>
+              <TextBox Text="{Binding ToolSpecification,UpdateSourceTrigger=PropertyChanged}"
+                       FontFamily="{StaticResource MonoFont}" AutomationProperties.AutomationId="ToolSpecificationBox"
+                       AutomationProperties.Name="{loc:Tr '工具规格，回车加入队列'}">
+                <TextBox.InputBindings><KeyBinding Key="Enter" Command="{Binding QueueToolsCommand}" /></TextBox.InputBindings>
+              </TextBox>
+              <TextBlock Text="{loc:Tr '例如 node@lts，回车添加'}" Foreground="{StaticResource MutedLight}" Margin="13,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding ToolSpecification}" Value="">
+                        <Setter Property="Visibility" Value="Visible" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+            </Grid>
+            <Button Grid.Column="1" Content="{loc:Tr '添加'}" Command="{Binding QueueToolsCommand}" Margin="8,0,0,0"
+                    AutomationProperties.AutomationId="QueueToolsButton" />
+            <ComboBox Grid.Column="2" Width="128" Margin="8,0,0,0" ItemsSource="{Binding CoreLanguageChoices}"
+                      DisplayMemberPath="Label" SelectedItem="{Binding SelectedLanguage,Mode=TwoWay}"
+                      AutomationProperties.AutomationId="OfficialLanguagePicker" AutomationProperties.Name="{loc:Tr '添加官方核心语言'}" />
+            <Button Grid.Column="3" Content="{loc:Tr '批量安装'}" Command="{Binding InstallToolCommand}" Style="{StaticResource PrimaryButton}"
+                    Margin="8,0,0,0" AutomationProperties.AutomationId="InstallToolButton" />
+          </Grid>
+          <ScrollViewer MaxHeight="88" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                        Visibility="{Binding HasQueuedTools,Converter={StaticResource BoolVisibility}}">
+            <ItemsControl ItemsSource="{Binding QueuedTools}" Margin="0,12,0,0" AutomationProperties.AutomationId="ToolQueue">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Background="{StaticResource QueueChip}" CornerRadius="6" Margin="0,0,8,6" Padding="8,0,2,0">
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock Text="{Binding Label}" MaxWidth="270" TextTrimming="CharacterEllipsis" ToolTip="{Binding Label}"
+                                 VerticalAlignment="Center" FontFamily="{StaticResource MonoFont}" FontSize="12" />
+                      <Button Style="{StaticResource QuietButton}" Width="28" Height="28" MinHeight="28" Padding="4"
+                              Command="{Binding DataContext.EditQueuedToolCommand,RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                              CommandParameter="{Binding}" AutomationProperties.Name="{loc:Tr '工具设置'}"
+                              AutomationProperties.HelpText="{Binding Label}"
+                              AutomationProperties.AutomationId="QueuedToolSettingsButton" ToolTip="{loc:Tr '工具设置'}">
+                        <controls:SvgIcon Data="{StaticResource IconSettings}" Width="13" Height="13" />
+                      </Button>
+                      <Button Style="{StaticResource QuietButton}" Width="28" Height="28" MinHeight="28" Padding="4"
+                              Command="{Binding DataContext.RemoveQueuedToolCommand,RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                              CommandParameter="{Binding}" AutomationProperties.Name="{loc:Tr '移出队列'}"
+                              AutomationProperties.HelpText="{Binding Label}"
+                              ToolTip="{loc:Tr '移出队列'}">
+                        <controls:SvgIcon Data="{StaticResource IconX}" Width="13" Height="13" />
+                      </Button>
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+          <Border Background="{StaticResource Console}" CornerRadius="6" MinHeight="44" Padding="12,5,6,5" Margin="0,12,0,0">
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+              <StackPanel VerticalAlignment="Center" Margin="0,0,8,0">
+                <TextBlock Text="{Binding ToolInstallStatus}" Foreground="{StaticResource ConsoleAccent}" FontSize="12"
+                           FontFamily="{StaticResource MonoFont}" AutomationProperties.LiveSetting="Polite" />
+                <TextBlock Text="{Binding ToolInstallLine}" Foreground="{StaticResource ConsoleOutputInk}" FontSize="11"
+                           FontFamily="{StaticResource MonoFont}" TextTrimming="CharacterEllipsis"
+                           AutomationProperties.AutomationId="ToolInstallLiveLine">
+                  <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                      <Style.Triggers><DataTrigger Binding="{Binding ToolInstallLine}" Value=""><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers>
+                    </Style>
+                  </TextBlock.Style>
+                </TextBlock>
+              </StackPanel>
+              <Button Grid.Column="1" Background="{StaticResource ConsoleControl}" BorderBrush="{StaticResource ConsoleSeparator}" Width="32" Height="32" MinHeight="32" Padding="5"
+                      Command="{Binding ShowTerminalCommand}" AutomationProperties.Name="{loc:Tr '打开完整日志'}"
+                      AutomationProperties.AutomationId="ToolInstallLogButton" ToolTip="{loc:Tr '打开完整日志'}">
+                <controls:SvgIcon Data="{StaticResource IconTerminal}" Width="17" Height="17" Foreground="{StaticResource ConsoleAccent}" />
+              </Button>
+            </Grid>
+          </Border>
+        </StackPanel>
+      </Border>
+      <Grid Grid.Row="1" Margin="0,0,0,12">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
           <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <Grid Width="320" HorizontalAlignment="Left"><TextBox Text="{Binding ToolFilter,UpdateSourceTrigger=PropertyChanged}" Padding="36,8,12,8" ToolTip="搜索工具或版本" AutomationProperties.AutomationId="ToolFilterBox"/><controls:SvgIcon Data="{StaticResource IconSearch}" Width="16" Height="16" HorizontalAlignment="Left" Margin="12,0,0,0" IsHitTestVisible="False"/><TextBlock Text="搜索工具" Foreground="{StaticResource MutedLight}" Margin="36,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding ToolFilter}" Value=""><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></Grid>
-        <Button Grid.Column="1" Content="刷新" Command="{Binding RefreshCommand}" Margin="8,0,8,0" />
-        <Button Grid.Column="2" Content="升级全部工具" Command="{Binding UpgradeToolsCommand}" Style="{StaticResource PrimaryButton}" AutomationProperties.AutomationId="UpgradeToolsButton" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="208" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="{loc:Tr '已安装工具'}" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"
+                     Margin="0,0,16,0" TextTrimming="CharacterEllipsis" />
+          <Grid Grid.Column="1">
+            <TextBox Text="{Binding ToolFilter,UpdateSourceTrigger=PropertyChanged}" Padding="36,8,12,8"
+                     ToolTip="{loc:Tr '搜索工具或版本'}" AutomationProperties.Name="{loc:Tr '搜索工具或版本'}"
+                     AutomationProperties.AutomationId="ToolFilterBox" />
+            <controls:SvgIcon Data="{StaticResource IconSearch}" Width="16" Height="16" HorizontalAlignment="Left"
+                              Margin="12,0,0,0" IsHitTestVisible="False" />
+            <TextBlock Text="{loc:Tr '搜索工具'}" Foreground="{StaticResource MutedLight}" Margin="36,0,0,0"
+                       VerticalAlignment="Center" IsHitTestVisible="False">
+              <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding ToolFilter}" Value="">
+                      <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </TextBlock.Style>
+            </TextBlock>
+          </Grid>
+        </Grid>
+        <Button Grid.Column="1" Content="{loc:Tr '导出工具'}" Command="{Binding ExportToolsCommand}" Margin="8,0,0,0" AutomationProperties.AutomationId="ExportToolsButton" />
+        <Button Grid.Column="2" Content="{loc:Tr '刷新'}" Command="{Binding RefreshCommand}" Margin="8,0,0,0" />
+        <Button Grid.Column="3" Content="{loc:Tr '升级全部工具'}" Command="{Binding UpgradeToolsCommand}" Margin="8,0,0,0" AutomationProperties.AutomationId="UpgradeToolsButton" />
       </Grid>
-      <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="0,0,0,8" Margin="0,0,0,16">
+      <Border Grid.Row="2" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="{StaticResource CardRadius}" Padding="0,0,0,8">
         <Grid>
           <DataGrid ItemsSource="{Binding FilteredTools}" AutomationProperties.AutomationId="ToolsTable">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="工具" Binding="{Binding Name}" Width="2*" />
-              <DataGridTextColumn Header="安装版本" Binding="{Binding Version}" Width="1.5*" />
-              <DataGridTextColumn Header="请求版本" Binding="{Binding Requested}" Width="1.3*" />
-              <DataGridTemplateColumn Header="状态" Width="1.3*">
+              <DataGridTextColumn Header="{loc:Tr '工具'}" Binding="{Binding Name}" Width="2*" />
+              <DataGridTextColumn Header="{loc:Tr '安装版本'}" Binding="{Binding Version}" Width="1.5*" />
+              <DataGridTextColumn Header="{loc:Tr '请求版本'}" Binding="{Binding Requested}" Width="1.3*" />
+              <DataGridTemplateColumn Header="{loc:Tr '状态'}" Width="1.3*">
                 <DataGridTemplateColumn.CellTemplate>
                   <DataTemplate>
                     <Border Background="{StaticResource AccentSoft}" CornerRadius="5" Padding="9,4" HorizontalAlignment="Left">
-                      <TextBlock Text="{Binding Active,Converter={StaticResource ActiveToolLabel}}" Foreground="{StaticResource Accent}" FontSize="10" />
+                      <TextBlock Text="{Binding Active,Converter={StaticResource ActiveToolLabel}}" Foreground="{StaticResource AccentDeep}" FontSize="11" />
                     </Border>
                   </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
@@ -46,36 +172,9 @@
               </Style>
             </StackPanel.Style>
             <controls:SvgIcon Data="{StaticResource IconPackage}" Width="30" Height="30" Foreground="{StaticResource MutedLight}" HorizontalAlignment="Center"/>
-            <TextBlock Text="暂无工具" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,7" />
+            <TextBlock Text="{loc:Tr '暂无工具'}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,7" />
           </StackPanel>
         </Grid>
-      </Border>
-      <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0" IsEnabled="{Binding CanOperate}">
-        <StackPanel>
-          <TextBlock Text="安装工具" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Grid>
-              <TextBox Text="{Binding ToolSpecification,UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}" AutomationProperties.AutomationId="ToolSpecificationBox" />
-              <TextBlock Text="例如 node@lts" Foreground="#94A6AE" Margin="13,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
-                <TextBlock.Style>
-                  <Style TargetType="TextBlock">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                      <DataTrigger Binding="{Binding ToolSpecification}" Value="">
-                        <Setter Property="Visibility" Value="Visible" />
-                      </DataTrigger>
-                    </Style.Triggers>
-                  </Style>
-                </TextBlock.Style>
-              </TextBlock>
-            </Grid>
-            <Button Grid.Column="1" Content="安装到全局环境" Command="{Binding InstallToolCommand}" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0" AutomationProperties.AutomationId="InstallToolButton" />
-          </Grid>
-        </StackPanel>
       </Border>
     </Grid>
   </DataTemplate>

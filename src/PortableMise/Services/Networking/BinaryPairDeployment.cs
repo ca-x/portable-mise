@@ -1,3 +1,5 @@
+using PortableMise.Localization;
+
 namespace PortableMise.Services.Networking;
 
 public static class BinaryPairDeployment
@@ -37,8 +39,8 @@ public static class BinaryPairDeployment
                 catch (Exception rollback) when (rollback is IOException or UnauthorizedAccessException) { rollbackErrors.Add(rollback); }
             }
             if (rollbackErrors.Count != 0)
-                throw new IOException("安装未完成，部分原件仍保留为 .mise-previous 备份，请关闭正在使用 mise 的进程后恢复。", new AggregateException(new[] { error }.Concat(rollbackErrors)));
-            throw new InvalidOperationException("mise 安装未完成，原有程序已保留；请关闭正在使用 mise 的进程并检查目录权限。", error);
+                throw new IOException(UiText.T("安装未完成，部分原件仍保留为 .mise-previous 备份，请关闭正在使用 mise 的进程后恢复。"), new AggregateException(new[] { error }.Concat(rollbackErrors)));
+            throw new InvalidOperationException(UiText.T("mise 安装未完成，原有程序已保留；请关闭正在使用 mise 的进程并检查目录权限。"), error);
         }
         finally
         {
@@ -50,6 +52,6 @@ public static class BinaryPairDeployment
     private static void DeleteIfPossible(string path, Action<string>? log)
     {
         try { if (File.Exists(path)) File.Delete(path); }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { log?.Invoke("仍在使用的安装临时文件已保留，可稍后清理。"); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { log?.Invoke(UiText.T("仍在使用的安装临时文件已保留，可稍后清理。")); }
     }
 }

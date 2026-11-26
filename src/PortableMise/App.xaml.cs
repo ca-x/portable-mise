@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
 using System.Windows.Threading;
+using PortableMise.Localization;
 using PortableMise.Models;
 using PortableMise.Services;
 using PortableMise.ViewModels;
@@ -28,9 +29,18 @@ public partial class App : System.Windows.Application
             string root = AppContext.BaseDirectory;
             string key = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(Path.GetFullPath(root).ToLowerInvariant())))[..24];
             instanceMutex = new Mutex(true, "Local\\PortableMise-" + key, out bool firstInstance);
-            if (!firstInstance) { instanceMutex.Dispose(); instanceMutex = null; System.Windows.MessageBox.Show("此工作区已在运行，请从系统托盘打开。", "Portable mise"); Shutdown(); return; }
             var store = new SettingsStore(root);
+            if (!firstInstance)
+            {
+                instanceMutex.Dispose();
+                instanceMutex = null;
+                try { UiText.Configure(store.Load().Language); } catch (InvalidDataException) { }
+                System.Windows.MessageBox.Show(UiText.T("此工作区已在运行，请从系统托盘打开。"), UiText.T("mise工具箱"));
+                Shutdown();
+                return;
+            }
             var settings = store.Load();
+            UiText.Configure(settings.Language);
             var mise = new MiseService(root);
             var terminal = new TerminalIntegration(root, mise);
             var installer = new MiseInstaller(root);
@@ -97,7 +107,7 @@ public partial class App : System.Windows.Application
         exiting = true;
         Shutdown();
     }
-    private static void ShowError(Exception error) => System.Windows.MessageBox.Show(ProxySupport.Sanitize(error.Message), "Portable mise", MessageBoxButton.OK, MessageBoxImage.Error);
+    private static void ShowError(Exception error) => System.Windows.MessageBox.Show(ProxySupport.Sanitize(error.Message), UiText.T("mise工具箱"), MessageBoxButton.OK, MessageBoxImage.Error);
     protected override void OnExit(ExitEventArgs e)
     {
         updateTimer?.Stop();
