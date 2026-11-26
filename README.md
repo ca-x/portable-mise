@@ -1,6 +1,12 @@
 # mise工具箱 · Mise Toolbox
 
-Windows 11 的 mise 桌面管理程序，使用 WPF。自定义控件、主题和图标编入主程序，发布为单个 framework-dependent EXE；需要 **.NET 10 Desktop Runtime**，不需要 .NET SDK。
+适用于 Windows 11 的 mise 桌面工具。可以批量安装和更新开发工具，为不同语言设置版本、安装选项和镜像，并在换机后从原有目录恢复环境。
+
+**下载 v0.2.0**：[Windows x64](https://github.com/ca-x/portable-mise/releases/download/v0.2.0/PortableMise-v0.2.0-win-x64.exe) · [Windows ARM64](https://github.com/ca-x/portable-mise/releases/download/v0.2.0/PortableMise-v0.2.0-win-arm64.exe) · [发布说明与校验文件](https://github.com/ca-x/portable-mise/releases/tag/v0.2.0)
+
+按设备架构下载单个 EXE。运行需要 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/zh-cn/download/dotnet/10.0)。
+
+![mise工具箱的工具页，上方是可编辑的安装标签和实时状态栏，下方是已安装工具列表](docs/screenshots/tools-queue.png)
 
 ## 使用
 
@@ -8,7 +14,7 @@ Windows 11 的 mise 桌面管理程序，使用 WPF。自定义控件、主题�
 2. 平时点击“更新环境”，分别执行 `mise self-update --yes` 和 `mise upgrade --yes`。工具页输入 `node@lts`、`python@3.13` 等规格后回车加入队列，可移除或点击标签齿轮编辑，再点击“批量安装”。安装中可以继续排队，两行状态实时显示当前批次和最新输出，终端图标可打开完整日志。
 3. 重装系统或移动整个工作目录后，启动同一个程序，点击“恢复环境”。程序会重新登记当前用户的 mise 环境变量、PATH 和 shims，保留已有工具和全局配置。
 
-桌面程序自身的更新通过设置中的检查入口和自动更新选项管理，下载来自本仓库 GitHub Releases，并校验 SHA256；更新前保留旧 EXE，目录中的配置和工具不被覆盖。
+已使用 v0.1.0 时，可以在「版本更新」点击「检查新版本」，再点击「下载安装并重启」。也可以在设置的「自动更新」中开启「桌面程序」。更新包来自 GitHub Releases 并校验 SHA256，更新时保留旧 EXE 和现有配置、工具数据。
 
 界面内嵌简体中文和英文，安装时默认跟随 Windows。可在设置中选择语言并保存，重启后生效。
 
@@ -19,6 +25,23 @@ Windows 11 的 mise 桌面管理程序，使用 WPF。自定义控件、主题�
 工具配置与维护可打开 mise 和便携 Cargo 配置文件，提供原生工具选项、安装前后钩子和软件包配置示例。WinGet 声明式软件包及当前用户的工具清理先预览再执行。共享系统工具仅提供清理预览。PowerShell 激活命令可复制。
 
 “导出工具”预览可复制或保存为 TOML。导出保留工作区的工具声明、选项和已知镜像设置，附完整已安装版本清单；已安装但未被声明的工具也会加入配置。Cargo 镜像另以可复制的 Cargo 配置片段附在文件里。
+
+<details>
+<summary>查看 Rust 选项、Go 镜像和 TOML 导出截图</summary>
+
+**Rust 工具选项**
+
+![Rust 标签的齿轮设置，包含工具链、Rustup 配置、额外组件、交叉编译目标和 mr-boxington](docs/screenshots/rust-options.png)
+
+**Go 下载镜像**
+
+![Go 下载源设置，包含 Google 中国下载预设、自定义下载地址和独立的模块代理输入框](docs/screenshots/go-mirrors.png)
+
+**TOML 导出预览**
+
+![TOML 预览显示工具版本、安装选项和镜像，底部可保存文件或复制到剪贴板](docs/screenshots/tool-export.png)
+
+</details>
 
 ## 便携目录
 
