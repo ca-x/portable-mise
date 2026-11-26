@@ -23,6 +23,8 @@ Compact Windows workbench with a native title bar, a clean command band and a mu
 
 ## Icons
 
+The language mirror picker is shared by the Tools command bar and the queue tag editor. One ecosystem and one provider are selected at a time. The dialog previews affected values and keeps the scope, apply action, and generated-file instructions visible without adding rows to the main workspace.
+
 Lucide official SVG sources are retained in Assets/Icons with the upstream license. WPF Geometry resources render these as 24×24 strokes using round caps and joins; all views use this one icon family. No SVG runtime DLL or separate control assembly.
 
 ## Controls and behavior

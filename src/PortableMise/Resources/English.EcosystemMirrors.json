@@ -1,0 +1,10 @@
+{
+  "在对应项目或工具环境中按需运行文件里的命令。": "Run the relevant command from this file in the intended project or tool environment.",
+  "文件 {0} 已手动编辑或不属于工具箱，未覆盖。": "{0} is manually edited or is unmanaged. It was left intact.",
+  "文件 {0} 在保存期间被修改，请重试。": "{0} changed while saving. Please retry.",
+  "镜像配置的记录无法读取，现有文件已保留。": "The mirror configuration record could not be read. Existing files were preserved.",
+  "此镜像不支持生成便携配置。": "This mirror does not support generating a portable configuration.",
+  "镜像配置位置 {0} 是文件链接，未使用。": "The mirror configuration path {0} is a file link and was left intact.",
+  "将此片段合并到 Stack 配置的 package-index，保留已有 Hackage 签名校验。": "Merge this fragment into package-index in your Stack configuration, preserving existing Hackage signature verification.",
+  "在 Leiningen 项目的 profiles.clj 中合并此片段。": "Merge this fragment into your Leiningen project's profiles.clj."
+}

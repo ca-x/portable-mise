@@ -12,6 +12,9 @@
             <Button DockPanel.Dock="Right" Content="{loc:Tr '配置与维护'}" Command="{Binding ToolMaintenanceCommand}"
                     Style="{StaticResource QuietButton}" Height="32" MinHeight="32" Padding="8,2"
                     AutomationProperties.AutomationId="ToolMaintenanceButton" />
+            <Button DockPanel.Dock="Right" Content="{loc:Tr '语言镜像'}" Command="{Binding LanguageMirrorsCommand}"
+                    Style="{StaticResource QuietButton}" Height="32" MinHeight="32" Padding="8,2" Margin="0,0,8,0"
+                    AutomationProperties.AutomationId="LanguageMirrorsButton" />
             <TextBlock Text="{loc:Tr '安装队列'}" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
           </DockPanel>
           <Grid>

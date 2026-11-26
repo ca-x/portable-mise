@@ -2,7 +2,7 @@
 param(
     [string]$DotnetPath = 'dotnet',
     [ValidatePattern('^v?\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$')]
-    [string]$Version = '0.2.0',
+    [string]$Version = '0.2.1',
     [string]$OutputRoot = (Join-Path $PSScriptRoot '..\artifacts'),
     [ValidateSet('win-x64', 'win-arm64')]
     [string[]]$RuntimeIdentifier = @('win-x64')

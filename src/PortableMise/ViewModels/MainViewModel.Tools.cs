@@ -38,6 +38,7 @@ public sealed partial class MainViewModel
     public ICommand RemoveQueuedToolCommand { get; private set; } = null!;
     public ICommand ExportToolsCommand { get; private set; } = null!;
     public ICommand ToolMaintenanceCommand { get; private set; } = null!;
+    public ICommand LanguageMirrorsCommand { get; private set; } = null!;
     public bool IsInstallingTools { get => installingTools; private set => Set(ref installingTools, value); }
     public string ToolInstallStatus { get => toolInstallStatus; private set => Set(ref toolInstallStatus, value); }
     public string ToolInstallLine { get => toolInstallLine; private set => Set(ref toolInstallLine, value); }
@@ -53,6 +54,7 @@ public sealed partial class MainViewModel
             () => CanOperate && IsInstalled && (QueuedTools.Count > 0 || !string.IsNullOrWhiteSpace(ToolSpecification)));
         ExportToolsCommand = new AsyncCommand(() => RunOperationAsync("导出工具", ExportToolsAsync), ReportError,
             () => CanOperate && IsInstalled);
+        LanguageMirrorsCommand = Action("语言镜像", OpenLanguageMirrorsAsync);
         ToolMaintenanceCommand = Action("工具配置与维护", async (settings, cancellationToken) =>
         {
             var window = new ToolMaintenanceDialog(AppPaths.Resolve(settings, appDirectory), settings, mise)
@@ -68,6 +70,21 @@ public sealed partial class MainViewModel
             Notify(nameof(HasQueuedTools));
             CommandManager.InvalidateRequerySuggested();
         };
+    }
+
+    private Task OpenLanguageMirrorsAsync(AppSettings snapshot, CancellationToken cancellationToken)
+    {
+        var window = new LanguageMirrorsDialog(AppPaths.Resolve(snapshot, appDirectory), snapshot, mise)
+        {
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+        using var cancel = cancellationToken.Register(() => window.Dispatcher.BeginInvoke(() =>
+        {
+            if (window.IsVisible) window.Close();
+        }));
+        window.ShowDialog();
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.CompletedTask;
     }
 
     private void QueueFromEditor()

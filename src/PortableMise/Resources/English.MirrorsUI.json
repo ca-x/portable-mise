@@ -1,0 +1,13 @@
+{
+  "语言镜像": "Language mirrors",
+  "工具或生态": "Tool or ecosystem",
+  "镜像预设": "Mirror preset",
+  "配置预览": "Configuration preview",
+  "配置仅写入当前便携工作区。": "Configuration is saved in this portable workspace.",
+  "应用镜像": "Apply mirror",
+  "当前预设：{0}": "Current preset: {0}",
+  "选择一个镜像预设以查看配置。": "Choose a mirror preset to preview its configuration.",
+  "恢复客户端默认源": "Restore client default",
+  "正在应用镜像…": "Applying mirror…",
+  "先保存或还原工作区设置，再打开语言镜像。": "Save or restore your workspace edits before opening language mirrors."
+}

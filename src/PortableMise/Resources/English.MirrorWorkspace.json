@@ -1,0 +1,5 @@
+{
+  "请选择目录中提供的镜像预设。": "Select a mirror preset from the catalog.",
+  "镜像预设与工作区设置不匹配。": "The mirror preset does not match the workspace settings.",
+  "Gradle 片段添加项目仓库，已有仓库优先级或 settings.gradle 的策略仍可能覆盖它。": "The Gradle snippet adds a project repository. Existing repository order or settings.gradle policy may take precedence."
+}

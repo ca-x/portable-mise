@@ -32,7 +32,9 @@ public static class ToolExport
         var tools = new TomlTable();
         output["tools"] = tools;
         string[] workspaceKeys = CoreToolCatalog.Languages.SelectMany(tool => tool.WorkspaceOptions ?? [])
-            .Select(option => option.Key).Distinct(StringComparer.Ordinal).ToArray();
+            .Select(option => option.Key).Concat(LanguageMirrorCatalog.All.SelectMany(profile => profile.Keys))
+            .Where(key => key.StartsWith("env.", StringComparison.Ordinal) || key.StartsWith("settings.", StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal).ToArray();
 
         foreach (string file in workspaceFiles.Distinct(StringComparer.OrdinalIgnoreCase))
         {

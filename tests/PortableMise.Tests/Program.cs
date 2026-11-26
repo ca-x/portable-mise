@@ -23,6 +23,8 @@ internal static class Program
                 count += await UpdaterTests.RunAsync(Path.Combine(root, "updater"));
                 count += await ViewModelTests.RunAsync(Path.Combine(root, "viewmodel"));
                 count += await WpfControlTests.RunAsync(Path.Combine(root, "controls"));
+                count += await LanguageMirrorTests.RunAsync(Path.Combine(root, "mirrors"));
+                count += await PortableEcosystemTests.RunAsync(Path.Combine(root, "ecosystem"));
                 UiText.Configure("en-US");
                 if (UiText.T("mise工具箱") != "Mise Toolbox" ||
                     UiText.F("正在安装 {0} 项", 3) != "Installing 3 tool(s)" ||

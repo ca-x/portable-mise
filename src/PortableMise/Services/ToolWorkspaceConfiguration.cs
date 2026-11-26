@@ -13,6 +13,7 @@ public sealed class ToolWorkspaceConfiguration(AppPaths paths, AppSettings setti
     private readonly AppSettings settings = settings.Copy();
     private string MiseConfig => Path.Combine(paths.ConfigDirectory, "config.toml");
     private string CargoConfig => Path.Combine(paths.ConfigDirectory, "cargo", "config.toml");
+    private string LegacyCargoConfig => Path.Combine(paths.ConfigDirectory, "cargo", "config");
 
     public async Task<string?> ReadAsync(string key, CancellationToken cancellationToken)
     {
@@ -21,12 +22,66 @@ public sealed class ToolWorkspaceConfiguration(AppPaths paths, AppSettings setti
 
     public async Task<string?> ReadCargoMirrorAsync(CancellationToken cancellationToken)
     {
-        if (await ReadAsync("env.CARGO_HOME", cancellationToken).ConfigureAwait(false) != CargoHome)
+        if (File.Exists(LegacyCargoConfig) ||
+            await ReadAsync("env.CARGO_HOME", cancellationToken).ConfigureAwait(false) != CargoHome)
             return null;
         byte[]? original = await ReadFileAsync(CargoConfig, cancellationToken).ConfigureAwait(false);
         if (original is null) return null;
         var sources = GetTable(ReadToml(Encoding.UTF8.GetString(original)), "source");
         return IsPortableSource(sources) ? GetValue(GetTable(sources, "portable-mise"), "registry") as string : null;
+    }
+
+    public async Task<bool> HasPortableCargoDefaultAsync(CancellationToken cancellationToken)
+    {
+        if (File.Exists(LegacyCargoConfig) ||
+            await ReadAsync("env.CARGO_HOME", cancellationToken).ConfigureAwait(false) != CargoHome)
+            return false;
+        byte[]? config = await ReadFileAsync(CargoConfig, cancellationToken).ConfigureAwait(false);
+        if (config is null) return false;
+        var sources = GetTable(ReadToml(Encoding.UTF8.GetString(config)), "source");
+        return sources is null || !sources.ContainsKey("crates-io") && !sources.ContainsKey("portable-mise");
+    }
+
+    public async Task ResetCargoMirrorAsync(CancellationToken cancellationToken)
+    {
+        EnsureNoLegacyCargoConfig();
+        if (await ReadAsync("env.CARGO_HOME", cancellationToken).ConfigureAwait(false) != CargoHome)
+        {
+            if (File.Exists(CargoConfig)) throw ManualCargoConfiguration();
+            return;
+        }
+
+        byte[]? original = await ReadFileAsync(CargoConfig, cancellationToken).ConfigureAwait(false);
+        if (original is null) return;
+        string text = Encoding.UTF8.GetString(original);
+        var sources = GetTable(ReadToml(text), "source");
+        if (sources is null || !sources.ContainsKey("crates-io") && !sources.ContainsKey("portable-mise"))
+            return;
+        var cratesIo = GetTable(sources, "crates-io");
+        var portableMirror = GetTable(sources, "portable-mise");
+        string? address = GetValue(portableMirror, "registry") as string;
+        if (address is null || !IsPortableSource(sources) || cratesIo?.Count != 1 || portableMirror?.Count != 1)
+            throw ManualCargoConfiguration();
+        string block = MatchLineEndings(ComposeCargo(address), text);
+        int start = text.IndexOf(block, StringComparison.Ordinal);
+        if (start < 0 || start != text.LastIndexOf(block, StringComparison.Ordinal))
+            throw ManualCargoConfiguration();
+
+        string remaining = text.Remove(start, block.Length);
+        _ = ReadToml(remaining);
+        cancellationToken.ThrowIfCancellationRequested();
+        EnsureNoLegacyCargoConfig();
+        EnsureUnchanged(CargoConfig, original);
+        ReplaceFile(CargoConfig, Encoding.UTF8.GetBytes(remaining));
+    }
+
+    private static InvalidOperationException ManualCargoConfiguration() =>
+        new(UiText.T("现有 Cargo 镜像已手动编辑，请在「配置与维护」中编辑。"));
+
+    private void EnsureNoLegacyCargoConfig()
+    {
+        if (File.Exists(LegacyCargoConfig))
+            throw new InvalidOperationException(UiText.T("Cargo 会优先读取已有的 config 文件。请在「配置与维护」中检查该文件。"));
     }
 
     public async Task SaveAsync(IReadOnlyDictionary<string, string> values, string? cargoMirror, CancellationToken cancellationToken)
@@ -40,8 +95,7 @@ public sealed class ToolWorkspaceConfiguration(AppPaths paths, AppSettings setti
         if (cargoMirror is not null)
         {
             cargoMirror = ValidateMirror(cargoMirror, forCargo: true);
-            if (File.Exists(Path.Combine(Path.GetDirectoryName(CargoConfig)!, "config")))
-                throw new InvalidOperationException(UiText.T("Cargo 会优先读取已有的 config 文件。请在「配置与维护」中检查该文件。"));
+            EnsureNoLegacyCargoConfig();
             var currentHome = await ReadAsync("env.CARGO_HOME", cancellationToken).ConfigureAwait(false);
             if (!string.IsNullOrEmpty(currentHome) && currentHome != CargoHome)
                 throw new InvalidOperationException(UiText.T("已有其他 CARGO_HOME 设置，请先在 mise 配置中处理该设置。"));

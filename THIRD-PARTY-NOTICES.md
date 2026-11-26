@@ -25,3 +25,7 @@ The executable is framework-dependent and uses the separately installed Microsof
 ## Tomlyn
 
 Tool export uses Tomlyn to preserve TOML 1.1 values, lists, and nested tables. Its BSD 2-Clause license is embedded and retained in docs/licenses/tomlyn.txt. Tomlyn is bundled in the single published executable.
+
+## Language mirror data
+
+Preset names and endpoint data reference the RubyMetric chsrc language recipes at commit 03dd727e76b3510fc0f26f74c5cb1ec13702b0e0. The program applies the selections with its own workspace configuration code.

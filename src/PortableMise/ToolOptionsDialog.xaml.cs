@@ -14,8 +14,12 @@ public partial class ToolOptionsDialog : Window
 {
     private const string CargoField = "cargo-mirror";
     private readonly string? toolName;
+    private readonly string mirrorToolId;
     private readonly bool workspaceEditable;
     private readonly ToolWorkspaceConfiguration workspace;
+    private readonly AppPaths paths;
+    private readonly AppSettings settings;
+    private readonly IMiseService mise;
     private readonly Dictionary<string, Func<string>> toolValues = new(StringComparer.Ordinal);
     private readonly Dictionary<string, WorkspaceField> workspaceFields = new(StringComparer.Ordinal);
     private CancellationTokenSource? activeOperation;
@@ -29,6 +33,10 @@ public partial class ToolOptionsDialog : Window
     {
         Specification = specification;
         Options = options;
+        this.paths = paths;
+        this.settings = settings;
+        this.mise = mise;
+        mirrorToolId = definition?.Id ?? ToolSpecifications.ToolName(specification);
         workspaceEditable = allowWorkspaceEdits && File.Exists(paths.MiseExecutable);
         workspace = new ToolWorkspaceConfiguration(paths, settings, mise);
         if (definition is not null && !specification.Contains('['))
@@ -44,6 +52,7 @@ public partial class ToolOptionsDialog : Window
         ToolDocumentation.NavigateUri = new Uri(definition?.DocumentationUrl ?? "https://mise.jdx.dev/dev-tools/tool-options.html");
         ToolHint.Text = UiText.T(definition?.WorkspaceSettings ?? "");
         ToolHint.Visibility = ToolHint.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        MirrorPresetsButton.Visibility = LanguageMirrorCatalog.ForTool(mirrorToolId).Any() ? Visibility.Visible : Visibility.Collapsed;
 
         var defined = new HashSet<string>(StringComparer.Ordinal);
         foreach (var option in definition?.Options ?? []) AddOption(SpecificOptionRows, option);
@@ -169,17 +178,35 @@ public partial class ToolOptionsDialog : Window
         if (WorkspaceRows.Children.Count > 0 && WorkspaceRows.Children[0] is FrameworkElement firstRow)
             _ = Dispatcher.BeginInvoke(() => firstRow.BringIntoView(), System.Windows.Threading.DispatcherPriority.Loaded);
         if (!workspaceEditable || sourceLoaded || activeOperation is not null) return;
-        await RunWorkspaceAsync(async token =>
+        await RunWorkspaceAsync(LoadWorkspaceAsync);
+    }
+
+    private async Task LoadWorkspaceAsync(CancellationToken token)
+    {
+        foreach (var field in workspaceFields.Values)
         {
-            foreach (var field in workspaceFields.Values)
-            {
-                string? value = field.Option.Key == CargoField ? await workspace.ReadCargoMirrorAsync(token) : await workspace.ReadAsync(field.Option.Key, token);
-                field.Baseline = value ?? "";
-                field.Editor.Write(field.Baseline);
-            }
-            sourceLoaded = true;
-            StatusText.Text = "";
-        });
+            string? value = field.Option.Key == CargoField ? await workspace.ReadCargoMirrorAsync(token) : await workspace.ReadAsync(field.Option.Key, token);
+            field.Baseline = value ?? "";
+            field.Editor.Write(field.Baseline);
+        }
+        sourceLoaded = true;
+        StatusText.Text = "";
+    }
+
+    private async void OpenMirrorPresets(object sender, RoutedEventArgs e)
+    {
+        if (activeOperation is not null) return;
+        if (sourceLoaded && workspaceFields.Values.Any(field => field.Editor.Read().Trim() is { Length: > 0 } value && value != field.Baseline))
+        {
+            StatusText.Text = UiText.T("先保存或还原工作区设置，再打开语言镜像。");
+            return;
+        }
+
+        var dialog = new LanguageMirrorsDialog(paths, settings, mise, mirrorToolId, workspaceEditable) { Owner = this };
+        dialog.ShowDialog();
+        if (!dialog.AppliedChanges || !sourceLoaded) return;
+        sourceLoaded = false;
+        await RunWorkspaceAsync(LoadWorkspaceAsync);
     }
 
     private async void SaveWorkspace(object sender, RoutedEventArgs e)
@@ -228,7 +255,7 @@ public partial class ToolOptionsDialog : Window
     {
         var cancellation = new CancellationTokenSource();
         activeOperation = cancellation;
-        WorkspaceRows.IsEnabled = SaveWorkspaceButton.IsEnabled = SaveTagButton.IsEnabled = false;
+        WorkspaceRows.IsEnabled = SaveWorkspaceButton.IsEnabled = SaveTagButton.IsEnabled = MirrorPresetsButton.IsEnabled = false;
         StatusText.Text = UiText.T("正在处理工作区设置…");
         try { await operation(cancellation.Token); }
         catch (OperationCanceledException) { StatusText.Text = UiText.T("已取消。"); }
@@ -238,7 +265,7 @@ public partial class ToolOptionsDialog : Window
             activeOperation = null;
             cancellation.Dispose();
             WorkspaceRows.IsEnabled = SaveWorkspaceButton.IsEnabled = sourceLoaded && workspaceEditable;
-            SaveTagButton.IsEnabled = true;
+            SaveTagButton.IsEnabled = MirrorPresetsButton.IsEnabled = true;
             if (closeRequested) Close();
         }
     }
