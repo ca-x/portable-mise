@@ -43,6 +43,7 @@ public partial class ToolOptionsDialog : Window
             toolName = specification.Split('@', 2)[0];
 
         InitializeComponent();
+        Loaded += (_, _) => Controls.Motion.PlayFadeIn(this);
         Title = definition is null ? UiText.T("工具选项") : UiText.F("{0} 安装选项", definition.Label);
         bool rust = definition?.Id == "rust";
         SpecificationLabel.Text = UiText.T(toolName is null ? "工具规格" : rust ? "工具链" : "版本");

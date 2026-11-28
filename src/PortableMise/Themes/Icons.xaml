@@ -58,4 +58,62 @@
     <PathGeometry Figures="m6 6 12 12" />
   </GeometryGroup>
   <GeometryGroup x:Key="IconChevronDown"><PathGeometry Figures="m6 9 6 6 6-6" /></GeometryGroup>
+  <GeometryGroup x:Key="IconCircleArrowUp">
+    <EllipseGeometry Center="12,12" RadiusX="10" RadiusY="10" />
+    <PathGeometry Figures="m16 12-4-4-4 4" />
+    <PathGeometry Figures="M12 16V8" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconClock">
+    <EllipseGeometry Center="12,12" RadiusX="10" RadiusY="10" />
+    <PathGeometry Figures="M12 6v6l4 2" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconCopy">
+    <RectangleGeometry Rect="8,8,14,14" RadiusX="2" RadiusY="2" />
+    <PathGeometry Figures="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconFolder">
+    <PathGeometry Figures="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconGlobe">
+    <EllipseGeometry Center="12,12" RadiusX="10" RadiusY="10" />
+    <EllipseGeometry Center="12,12" RadiusX="4.6" RadiusY="10" />
+    <PathGeometry Figures="M2 12h20" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconListPlus">
+    <PathGeometry Figures="M11 12H3" />
+    <PathGeometry Figures="M16 6H3" />
+    <PathGeometry Figures="M3 18h8" />
+    <PathGeometry Figures="M18 8v8" />
+    <PathGeometry Figures="M22 12h-8" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconMaximize">
+    <RectangleGeometry Rect="5.5,5.5,13,13" RadiusX="1.5" RadiusY="1.5" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconMinus">
+    <PathGeometry Figures="M5 12h14" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconMonitor">
+    <RectangleGeometry Rect="2,3,20,14" RadiusX="2" RadiusY="2" />
+    <PathGeometry Figures="M8 21h8" />
+    <PathGeometry Figures="M12 17v4" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconPlay">
+    <PathGeometry Figures="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86Z" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconRestore">
+    <RectangleGeometry Rect="3.5,7.5,11,11" RadiusX="1.5" RadiusY="1.5" />
+    <PathGeometry Figures="M7.5 7.5V5a1.5 1.5 0 0 1 1.5-1.5h10A1.5 1.5 0 0 1 20.5 5v10a1.5 1.5 0 0 1-1.5 1.5h-2.5" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconRotateCcw">
+    <PathGeometry Figures="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+    <PathGeometry Figures="M3 3v5h5" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconType">
+    <PathGeometry Figures="M4 7V4h16v3" />
+    <PathGeometry Figures="M9 20h6" />
+    <PathGeometry Figures="M12 4v16" />
+  </GeometryGroup>
+  <GeometryGroup x:Key="IconZap">
+    <PathGeometry Figures="M13 2 3 14h9l-1 8 10-12h-9l1-8Z" />
+  </GeometryGroup>
 </ResourceDictionary>

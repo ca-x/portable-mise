@@ -77,6 +77,25 @@ public static class WpfControlTests
             card.Template = new ControlTemplate(typeof(StatusCard));
             card.ApplyTemplate(); card.IsBusy = false; card.IsReady = false;
             Check(!card.IsBusy && !card.IsReady, "StatusCard tolerates an incomplete template");
+            var grid = new DataGrid { ItemsSource = new[] { new { Name = "node", Version = "22.0.0", Requested = "lts", Active = true } }, Width = 400, Height = 120 };
+            grid.Columns.Add(new System.Windows.Controls.DataGridTextColumn { Header = "Tool", Binding = new Binding("Name") });
+            grid.Columns.Add(new System.Windows.Controls.DataGridTextColumn { Header = "Version", Binding = new Binding("Version") });
+            var gridWindow = new Window { Content = grid, Width = 420, Height = 140, Left = -10000, Top = -10000, ShowInTaskbar = false, WindowStyle = WindowStyle.None };
+            try
+            {
+                gridWindow.Show();
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                var row = FindDescendant<DataGridRow>(grid);
+                Check(row != null, "DataGrid materializes rows with the themed template");
+                if (row != null)
+                {
+                    row.ApplyTemplate();
+                    var presenter = FindDescendant<System.Windows.Controls.Primitives.DataGridCellsPresenter>(row);
+                    Check(presenter != null && presenter.Items.Count >= 1, "themed row template keeps the cells presenter alive");
+                    Check(FindDescendant<System.Windows.Controls.DataGridCell>(row) != null, "row template renders cells");
+                }
+            }
+            finally { gridWindow.Close(); }
         }
         finally { window.Close(); }
         return count;
@@ -96,6 +115,18 @@ public static class WpfControlTests
         {
             var group = FindGroup(VisualTreeHelper.GetChild(element, index), name);
             if (group != null) return group;
+        }
+        return null;
+    }
+
+    private static T? FindDescendant<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (int index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match) return match;
+            var nested = FindDescendant<T>(child);
+            if (nested != null) return nested;
         }
         return null;
     }

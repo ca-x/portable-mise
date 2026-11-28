@@ -72,6 +72,7 @@ public partial class ToolMaintenanceDialog : Window
         this.settings = settings.Copy();
         this.mise = mise;
         InitializeComponent();
+        Loaded += (_, _) => Controls.Motion.PlayFadeIn(this);
         OperationPicker.SelectedIndex = 0;
     }
 

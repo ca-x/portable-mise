@@ -11,6 +11,7 @@ public partial class CloseChoiceDialog : Window
     public CloseChoiceDialog(Window? owner = null)
     {
         InitializeComponent();
+        Loaded += (_, _) => Controls.Motion.PlayFadeIn(this);
         if (owner != null) Owner = owner;
     }
     private void OnExitClick(object sender, RoutedEventArgs e) { CloseToTrayChoice = false; DialogResult = true; }

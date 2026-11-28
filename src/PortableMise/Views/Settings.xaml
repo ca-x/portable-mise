@@ -6,10 +6,13 @@
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
       <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="24,24,24,8" IsEnabled="{Binding CanOperate}">
+        <StackPanel Margin="28,24,28,8" IsEnabled="{Binding CanOperate}">
           <Border Style="{StaticResource Card}">
             <StackPanel>
-              <TextBlock Text="{loc:Tr '代理'}" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <controls:SvgIcon Data="{StaticResource IconGlobe}" Width="17" Height="17" VerticalAlignment="Center" />
+                <TextBlock Text="{loc:Tr '代理'}" Style="{StaticResource SectionTitle}" Margin="9,0,0,0" VerticalAlignment="Center" />
+              </StackPanel>
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="112" />
@@ -17,7 +20,7 @@
                   <ColumnDefinition Width="8" />
                   <ColumnDefinition />
                   <ColumnDefinition Width="8" />
-                  <ColumnDefinition Width="88" />
+                  <ColumnDefinition Width="96" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{loc:Tr '连接模式'}" Foreground="{StaticResource Muted}" VerticalAlignment="Center" />
                 <ComboBox Grid.Column="1" ItemsSource="{StaticResource ProxyModes}" SelectedItem="{Binding Settings.ProxyMode,Mode=TwoWay}" AutomationProperties.AutomationId="ProxyModeBox">
@@ -39,7 +42,12 @@
                     </Style>
                   </TextBox.Style>
                 </TextBox>
-                <Button Grid.Column="5" Content="{loc:Tr '测试'}" Command="{Binding TestProxyCommand}" AutomationProperties.AutomationId="TestProxyButton" />
+                <Button Grid.Column="5" Command="{Binding TestProxyCommand}" AutomationProperties.AutomationId="TestProxyButton">
+                  <StackPanel Orientation="Horizontal">
+                    <controls:SvgIcon Data="{StaticResource IconZap}" Width="13" Height="13" Margin="0,0,6,0" />
+                    <TextBlock Text="{loc:Tr '测试'}" />
+                  </StackPanel>
+                </Button>
               </Grid>
             </StackPanel>
           </Border>
@@ -51,8 +59,11 @@
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition />
               </Grid.ColumnDefinitions>
-              <TextBlock Text="{loc:Tr '界面语言'}" Foreground="{DynamicResource Muted}"
-                         VerticalAlignment="Center" TextWrapping="Wrap" />
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <controls:SvgIcon Data="{StaticResource IconType}" Width="15" Height="15" VerticalAlignment="Center" />
+                <TextBlock Text="{loc:Tr '界面语言'}" Foreground="{DynamicResource Muted}"
+                           VerticalAlignment="Center" TextWrapping="Wrap" Margin="7,0,0,0" />
+              </StackPanel>
               <ComboBox Grid.Column="1" ItemsSource="{Binding LanguageChoices}" DisplayMemberPath="Label"
                         SelectedValuePath="Id" SelectedValue="{Binding Settings.Language,Mode=TwoWay}"
                         AutomationProperties.Name="{loc:Tr '界面语言'}"
@@ -62,22 +73,41 @@
             </Grid>
           </Border>
           <Border Style="{StaticResource Card}">
-            <Expander Header="{loc:Tr '目录'}">
+            <Expander>
+              <Expander.Header>
+                <StackPanel Orientation="Horizontal">
+                  <controls:SvgIcon Data="{StaticResource IconFolder}" Width="16" Height="16" VerticalAlignment="Center" />
+                  <TextBlock Text="{loc:Tr '目录'}" FontWeight="SemiBold" Margin="9,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+              </Expander.Header>
               <StackPanel Margin="0,20,0,0">
                 <controls:PathPicker Caption="{loc:Tr 'mise 目录'}" Text="{Binding Settings.MiseDirectory,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" BrowseCommand="{Binding BrowseMiseDirectoryCommand}" AutomationProperties.AutomationId="MiseDirectoryPicker" />
                 <TextBlock Text="{Binding ResolvedMiseDirectory}" Style="{StaticResource Caption}" FontFamily="{StaticResource MonoFont}" FontSize="11" Margin="112,8,0,16" />
                 <controls:PathPicker Caption="{loc:Tr '工具目录'}" Text="{Binding Settings.ToolsDirectory,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" BrowseCommand="{Binding BrowseToolsDirectoryCommand}" AutomationProperties.AutomationId="ToolsDirectoryPicker" />
                 <TextBlock Text="{Binding ResolvedToolsDirectory}" Style="{StaticResource Caption}" FontFamily="{StaticResource MonoFont}" FontSize="11" Margin="112,8,0,16" />
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                  <Button Content="{loc:Tr '恢复终端环境'}" Command="{Binding RestoreCommand}" AutomationProperties.AutomationId="RestoreButton" Margin="0,0,8,0" />
-                  <Button Content="{loc:Tr '安装 mise'}" Command="{Binding InstallCommand}" AutomationProperties.AutomationId="InstallButton" />
+                  <Button Command="{Binding RestoreCommand}" AutomationProperties.AutomationId="RestoreButton" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                      <controls:SvgIcon Data="{StaticResource IconRotateCcw}" Width="13" Height="13" Margin="0,0,6,0" />
+                      <TextBlock Text="{loc:Tr '恢复终端环境'}" />
+                    </StackPanel>
+                  </Button>
+                  <Button Command="{Binding InstallCommand}" Style="{StaticResource PrimaryButton}" AutomationProperties.AutomationId="InstallButton">
+                    <StackPanel Orientation="Horizontal">
+                      <controls:SvgIcon Data="{StaticResource IconDownload}" Width="14" Height="14" Foreground="White" Margin="0,0,8,0" />
+                      <TextBlock Text="{loc:Tr '安装 mise'}" />
+                    </StackPanel>
+                  </Button>
                 </StackPanel>
               </StackPanel>
             </Expander>
           </Border>
           <Border Style="{StaticResource Card}">
             <StackPanel>
-              <TextBlock Text="{loc:Tr '自动更新'}" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <controls:SvgIcon Data="{StaticResource IconClock}" Width="17" Height="17" VerticalAlignment="Center" />
+                <TextBlock Text="{loc:Tr '自动更新'}" Style="{StaticResource SectionTitle}" Margin="9,0,0,0" VerticalAlignment="Center" />
+              </StackPanel>
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition />
@@ -99,7 +129,13 @@
             </StackPanel>
           </Border>
           <Border Style="{StaticResource Card}">
-            <Expander Header="{loc:Tr '窗口'}">
+            <Expander>
+              <Expander.Header>
+                <StackPanel Orientation="Horizontal">
+                  <controls:SvgIcon Data="{StaticResource IconMonitor}" Width="16" Height="16" VerticalAlignment="Center" />
+                  <TextBlock Text="{loc:Tr '窗口'}" FontWeight="SemiBold" Margin="9,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+              </Expander.Header>
               <Grid Margin="0,16,0,0">
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="112" />
@@ -130,12 +166,25 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
-              <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="{loc:Tr '桌面程序'}" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding ApplicationVersion,StringFormat=v{0}}" Style="{StaticResource Caption}" Margin="0,4,0,0" />
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <controls:SvgIcon Data="{StaticResource IconDownload}" Width="17" Height="17" VerticalAlignment="Center" />
+                <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                  <TextBlock Text="{loc:Tr '桌面程序'}" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding ApplicationVersion,StringFormat=v{0}}" Style="{StaticResource Caption}" Margin="0,3,0,0" />
+                </StackPanel>
               </StackPanel>
-              <Button Grid.Column="1" Content="{loc:Tr '检查更新'}" Command="{Binding CheckAppUpdateCommand}" Margin="8,0,8,0" AutomationProperties.AutomationId="CheckAppUpdateButton" />
-              <Button Grid.Column="2" Content="{loc:Tr '安装更新'}" Command="{Binding ApplyAppUpdateCommand}" IsEnabled="{Binding HasAppUpdate}" Style="{StaticResource PrimaryButton}" AutomationProperties.AutomationId="ApplyAppUpdateButton" />
+              <Button Grid.Column="1" Command="{Binding CheckAppUpdateCommand}" Margin="8,0,8,0" AutomationProperties.AutomationId="CheckAppUpdateButton">
+                <StackPanel Orientation="Horizontal">
+                  <controls:SvgIcon Data="{StaticResource IconSearch}" Width="13" Height="13" Margin="0,0,6,0" />
+                  <TextBlock Text="{loc:Tr '检查更新'}" />
+                </StackPanel>
+              </Button>
+              <Button Grid.Column="2" Command="{Binding ApplyAppUpdateCommand}" IsEnabled="{Binding HasAppUpdate}" Style="{StaticResource PrimaryButton}" AutomationProperties.AutomationId="ApplyAppUpdateButton">
+                <StackPanel Orientation="Horizontal">
+                  <controls:SvgIcon Data="{StaticResource IconDownload}" Width="14" Height="14" Foreground="White" Margin="0,0,8,0" />
+                  <TextBlock Text="{loc:Tr '安装更新'}" />
+                </StackPanel>
+              </Button>
             </Grid>
           </Border>
           <Grid Margin="0,0,0,8">
@@ -150,10 +199,15 @@
           </Grid>
         </StackPanel>
       </ScrollViewer>
-      <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="24,16">
+      <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource Hairline}" BorderThickness="0,1,0,0" Padding="28,14">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
           <Button Content="{loc:Tr '打开数据目录'}" Command="{Binding OpenDataFolderCommand}" Style="{StaticResource QuietButton}" Margin="0,0,8,0" />
-          <Button Content="{loc:Tr '保存设置'}" Command="{Binding SaveSettingsCommand}" Style="{StaticResource PrimaryButton}" AutomationProperties.AutomationId="SaveSettingsButton" />
+          <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource PrimaryButton}" AutomationProperties.AutomationId="SaveSettingsButton" MinWidth="112">
+            <StackPanel Orientation="Horizontal">
+              <controls:SvgIcon Data="{StaticResource IconCheck}" Width="14" Height="14" Foreground="White" Margin="0,0,8,0" />
+              <TextBlock Text="{loc:Tr '保存设置'}" />
+            </StackPanel>
+          </Button>
         </StackPanel>
       </Border>
     </Grid>

@@ -23,6 +23,7 @@ public partial class LanguageMirrorsDialog : Window
         workspace = new LanguageMirrorWorkspace(paths, settings, mise);
         canEdit = allowWorkspaceEdits && File.Exists(paths.MiseExecutable);
         InitializeComponent();
+        Loaded += (_, _) => Controls.Motion.PlayFadeIn(this);
         var profiles = toolId is null ? LanguageMirrorCatalog.All : LanguageMirrorCatalog.ForTool(toolId);
         ProfileBox.ItemsSource = profiles.Select(profile => new ProfileChoice(UiText.T(profile.Label), profile)).ToArray();
         ProfileBox.SelectedIndex = 0;

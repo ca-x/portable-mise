@@ -10,6 +10,7 @@ public partial class ToolExportDialog : Window
     public ToolExportDialog(string content)
     {
         InitializeComponent();
+        Loaded += (_, _) => Controls.Motion.PlayFadeIn(this);
         Preview.Text = content;
     }
 

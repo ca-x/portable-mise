@@ -15,7 +15,8 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContextChanged += (_, _) => HookViewModel();
         HookViewModel();
-        Loaded += (_, _) => Motion.PlayRiseIn(PageHost, 6);
+        Loaded += OnWindowLoaded;
+        StateChanged += OnStateChanged;
     }
 
     private void HookViewModel()
@@ -30,6 +31,8 @@ public partial class MainWindow : Window
         if (e.PropertyName == nameof(MainViewModel.CurrentPage)) PlayPageTransition();
     }
 
+    private void OnWindowLoaded(object sender, RoutedEventArgs e) => Motion.PlayRiseIn(PageHost, 6);
+
     /// <summary>Cross-fades and eases the page body up whenever navigation swaps the page template.</summary>
     private void PlayPageTransition()
     {
@@ -43,4 +46,15 @@ public partial class MainWindow : Window
             translate.BeginAnimation(System.Windows.Media.TranslateTransform.YProperty, rise);
         }
     }
+
+    private void OnStateChanged(object? sender, EventArgs e)
+    {
+        // A borderless maximized window extends past the monitor edges by the resize frame; inset the content so nothing is clipped.
+        RootGrid.Margin = WindowState == WindowState.Maximized ? new Thickness(7) : new Thickness(0);
+    }
+
+    private void OnMinimizeClick(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+    private void OnMaximizeClick(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    private void OnCloseClick(object sender, RoutedEventArgs e) => Close();
 }

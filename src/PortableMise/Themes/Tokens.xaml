@@ -11,15 +11,18 @@
   <SolidColorBrush x:Key="Ink" Color="#172131"/>
   <SolidColorBrush x:Key="Muted" Color="#535F70"/>
   <SolidColorBrush x:Key="MutedLight" Color="#626F81"/>
-  <SolidColorBrush x:Key="Canvas" Color="#F5F7FA"/>
+  <SolidColorBrush x:Key="Canvas" Color="#F1F4F8"/>
   <SolidColorBrush x:Key="Surface" Color="#FFFFFF"/>
   <Color x:Key="LineColor">#DCE3EC</Color>
   <SolidColorBrush x:Key="Line" Color="{StaticResource LineColor}"/>
   <Color x:Key="LineStrongColor">#C3CDDA</Color>
   <SolidColorBrush x:Key="LineStrong" Color="{StaticResource LineStrongColor}"/>
   <SolidColorBrush x:Key="LineFaint" Color="#E8EDF4"/>
+  <SolidColorBrush x:Key="Hairline" Color="#E7ECF3"/>
+  <SolidColorBrush x:Key="FieldFill" Color="#EFF2F7"/>
+  <SolidColorBrush x:Key="FieldHover" Color="#E7ECF3"/>
   <SolidColorBrush x:Key="HoverShade" Color="#172131"/>
-  <SolidColorBrush x:Key="Sidebar" Color="#EEF2F7"/>
+  <SolidColorBrush x:Key="Sidebar" Color="#F7F9FC"/>
   <SolidColorBrush x:Key="SidebarSelected" Color="#DCE7F9"/>
   <SolidColorBrush x:Key="Console" Color="#192230"/>
   <SolidColorBrush x:Key="ConsoleAccent" Color="#A8E4CB"/>
@@ -27,9 +30,12 @@
   <SolidColorBrush x:Key="ConsoleControl" Color="#263447"/>
   <SolidColorBrush x:Key="ConsoleSeparator" Color="#405065"/>
   <SolidColorBrush x:Key="QueueChip" Color="#EFF3F8"/>
-  <FontFamily x:Key="BodyFont">Segoe UI, Microsoft YaHei UI</FontFamily>
+  <FontFamily x:Key="BodyFont">Segoe UI Variable Display, Segoe UI, Microsoft YaHei UI</FontFamily>
   <FontFamily x:Key="MonoFont">Cascadia Code, Consolas, Microsoft YaHei UI</FontFamily>
-  <CornerRadius x:Key="CardRadius">8</CornerRadius>
+  <CornerRadius x:Key="CardRadius">12</CornerRadius>
+  <CornerRadius x:Key="ControlRadius">8</CornerRadius>
+  <CornerRadius x:Key="ChipRadius">14</CornerRadius>
+  <CornerRadius x:Key="PopupRadius">10</CornerRadius>
   <Duration x:Key="FastMotion">0:0:0.1</Duration>
   <Duration x:Key="NormalMotion">0:0:0.18</Duration>
   <Duration x:Key="SlowMotion">0:0:0.24</Duration>
