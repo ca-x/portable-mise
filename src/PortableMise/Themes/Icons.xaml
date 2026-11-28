@@ -71,6 +71,13 @@
     <RectangleGeometry Rect="8,8,14,14" RadiusX="2" RadiusY="2" />
     <PathGeometry Figures="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
   </GeometryGroup>
+  <GeometryGroup x:Key="IconFileText">
+    <PathGeometry Figures="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+    <PathGeometry Figures="M14 2v4a2 2 0 0 0 2 2h4" />
+    <PathGeometry Figures="M16 13H8" />
+    <PathGeometry Figures="M16 17H8" />
+    <PathGeometry Figures="M10 9H8" />
+  </GeometryGroup>
   <GeometryGroup x:Key="IconFolder">
     <PathGeometry Figures="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
   </GeometryGroup>

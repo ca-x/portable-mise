@@ -61,7 +61,7 @@ public sealed partial class MainViewModel
         OpenTerminalCommand = new RelayCommand(() => TryAction(() => terminal.OpenTerminal(Settings.Copy())), () => CanOperate);
         OpenDataFolderCommand = new RelayCommand(() => TryAction(() => OpenLocation(appDirectory)));
         OpenDocsCommand = new RelayCommand(() => TryAction(() => OpenLocation("https://mise.jdx.dev/installing-mise.html#windows")));
-        ClearLogsCommand = new RelayCommand(() => LogText = "");
+        ClearLogsCommand = new RelayCommand(() => { pendingLogLines.Clear(); LogText = ""; });
         ClearToolFilterCommand = new RelayCommand(() => ToolFilter = "", () => ToolFilter.Length > 0);
         ShowLicenseCommand = new RelayCommand(() => TryAction(ShowLicense));
         CancelCommand = new RelayCommand(() => operation?.Cancel(), () => IsBusy);

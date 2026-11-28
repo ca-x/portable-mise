@@ -85,6 +85,8 @@ public static class RuntimeTests
         Check(!direct.Environment.ContainsKey("HTTPS_PROXY") && !direct.Environment.ContainsKey("HTTP_PROXY"), "disabled proxy removes inherited proxy settings from child");
         var parsed = MiseService.ParseTools("{\"node\":[{\"version\":\"22.12.0\",\"active\":true,\"installed\":true,\"requested_version\":\"22\"}],\"python\":[{\"version\":\"3.13.1\",\"active\":false,\"installed\":true}]}");
         Check(parsed.Count == 2 && parsed.Single(t => t.Name == "node").Active && parsed.Single(t => t.Name == "python").Version == "3.13.1", "mise keyed tool JSON is parsed without inventing active versions");
+        Check(parsed.Single(t => t.Name == "node").Status == ToolStatus.Active && parsed.Single(t => t.Name == "python").Status == ToolStatus.Installed,
+            "tool rows distinguish the active version from installed ones");
         bool badJson = false;
         try { MiseService.ParseTools("not json"); } catch (InvalidDataException) { badJson = true; }
         Check(badJson, "malformed mise JSON is reported");

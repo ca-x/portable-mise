@@ -9,7 +9,8 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" ResizeMode="CanResize"
         Background="{DynamicResource Canvas}" Foreground="{DynamicResource Ink}"
-        FontFamily="{DynamicResource BodyFont}" UseLayoutRounding="True" SnapsToDevicePixels="True">
+        FontFamily="{DynamicResource BodyFont}" UseLayoutRounding="True" SnapsToDevicePixels="True"
+        controls:FocusVisual.IsTracking="True">
   <shell:WindowChrome.WindowChrome>
     <shell:WindowChrome CaptionHeight="64" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
   </shell:WindowChrome.WindowChrome>

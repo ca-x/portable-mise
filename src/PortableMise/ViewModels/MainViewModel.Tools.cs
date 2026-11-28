@@ -189,7 +189,8 @@ public sealed partial class MainViewModel
             }
             foreach (var tool in batch)
                 QueuedTools.Remove(tool);
-            ToolInstallStatus = UiText.F("已完成 {0} 项", batch.Length);
+            completionStatus = UiText.F("已安装 {0}。", SummarizeSpecs(batch.Select(tool => tool.Request.Specification)));
+            ToolInstallStatus = completionStatus;
             await RefreshCoreAsync(settings, cancellationToken);
         }
         finally { IsInstallingTools = false; }

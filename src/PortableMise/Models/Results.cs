@@ -2,7 +2,18 @@ using PortableMise.Localization;
 
 namespace PortableMise.Models;
 
-public sealed record ToolInfo(string Name, string Version, bool Active, bool Installed, string Requested = "");
+public enum ToolStatus
+{
+    /// <summary>Currently selected by mise for the session environment.</summary>
+    Active,
+    /// <summary>Installed but not the active version for this tool.</summary>
+    Installed,
+}
+
+public sealed record ToolInfo(string Name, string Version, bool Active, bool Installed, string Requested = "")
+{
+    public ToolStatus Status => Active ? ToolStatus.Active : ToolStatus.Installed;
+}
 public sealed record ToolInstallRequest(string Specification, IReadOnlyDictionary<string, string>? Options = null);
 public sealed record ProcessResult(int ExitCode, string StandardOutput, string StandardError)
 {

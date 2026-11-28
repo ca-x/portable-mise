@@ -115,5 +115,11 @@
   "已安装版本": "Installed versions",
   "界面语言": "Interface language",
   "界面语言在下次启动时生效。": "The language changes the next time the app starts.",
-  "在上方输入 node@lts 等规格加入队列，点击「批量安装」即可。": "Queue a spec like node@lts above, then run Batch install."
+  "在上方输入 node@lts 等规格加入队列，点击「批量安装」即可。": "Queue a spec like node@lts above, then run Batch install.",
+  "已安装": "Installed",
+  "{0}完成{1}。": "{0} completed{1}.",
+  "，用时 {0:0} 秒": ", took {0:0} s",
+  "已安装 {0}。": "Installed {0}.",
+  "{0} 等 {1} 项": "{1} tools including {0}",
+  "0 项": "0 tools"
 }

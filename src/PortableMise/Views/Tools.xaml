@@ -66,7 +66,7 @@
               </StackPanel>
             </Button>
           </Grid>
-          <ScrollViewer MaxHeight="88" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+          <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                         Visibility="{Binding HasQueuedTools,Converter={StaticResource BoolVisibility}}">
             <ItemsControl ItemsSource="{Binding QueuedTools}" Margin="0,12,0,0" AutomationProperties.AutomationId="ToolQueue">
               <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
@@ -116,7 +116,7 @@
               <Button Grid.Column="1" Background="{StaticResource ConsoleControl}" BorderThickness="0" Width="32" Height="32" MinHeight="32" Padding="5"
                       Command="{Binding ShowTerminalCommand}" AutomationProperties.Name="{loc:Tr '打开完整日志'}"
                       AutomationProperties.AutomationId="ToolInstallLogButton" ToolTip="{loc:Tr '打开完整日志'}">
-                <controls:SvgIcon Data="{StaticResource IconTerminal}" Width="17" Height="17" Foreground="{StaticResource ConsoleAccent}" />
+                <controls:SvgIcon Data="{StaticResource IconFileText}" Width="17" Height="17" Foreground="{StaticResource ConsoleAccent}" />
               </Button>
             </Grid>
           </Border>
@@ -191,8 +191,29 @@
               <DataGridTemplateColumn Header="{loc:Tr '状态'}" Width="1.3*">
                 <DataGridTemplateColumn.CellTemplate>
                   <DataTemplate>
-                    <Border Background="{StaticResource AccentSoft}" CornerRadius="6" Padding="9,3.5" HorizontalAlignment="Left" Margin="0,0,12,0">
-                      <TextBlock Text="{Binding Active,Converter={StaticResource ActiveToolLabel}}" Foreground="{StaticResource AccentDeep}" FontSize="11" />
+                    <Border CornerRadius="6" Padding="9,3.5" HorizontalAlignment="Left" Margin="0,0,12,0">
+                      <Border.Style>
+                        <Style TargetType="Border">
+                          <Setter Property="Background" Value="{StaticResource QueueChip}" />
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding Status}" Value="Active">
+                              <Setter Property="Background" Value="{StaticResource AccentSoft}" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </Border.Style>
+                      <TextBlock Text="{Binding Status,Converter={StaticResource ToolStatusLabel}}" FontSize="11">
+                        <TextBlock.Style>
+                          <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{StaticResource Muted}" />
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding Status}" Value="Active">
+                                <Setter Property="Foreground" Value="{StaticResource AccentDeep}" />
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </TextBlock.Style>
+                      </TextBlock>
                     </Border>
                   </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>

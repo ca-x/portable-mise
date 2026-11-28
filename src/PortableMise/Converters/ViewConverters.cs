@@ -44,6 +44,14 @@ public sealed class ActiveToolLabelConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+public sealed class ToolStatusLabelConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is ToolStatus.Active ? UiText.T("当前使用") : UiText.T("已安装");
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 public sealed class ProgressWidthConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)

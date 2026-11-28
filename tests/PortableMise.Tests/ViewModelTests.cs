@@ -1,4 +1,6 @@
 using System.Windows.Input;
+using System.Windows.Threading;
+using PortableMise.Localization;
 using PortableMise.Models;
 using PortableMise.Services;
 using PortableMise.ViewModels;
@@ -55,6 +57,11 @@ public static class ViewModelTests
         vm.ToolSpecification = "python@3.13";
         await Execute(vm.InstallToolCommand);
         Check(mise.LastSpec == "python@3.13", "tool installation uses entered specification");
+        Check(vm.StatusText.Contains(UiText.T("已安装")) && vm.ToolInstallStatus.Contains("python@3.13"),
+            "tool install reports the specific tools that finished");
+        await Task.Delay(250);
+        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+        Check(vm.LogText.Contains(UiText.T("安装开发工具")), "buffered log lines flush to the terminal text");
         vm.ToolSpecification = "rust[mr_boxington=true]@stable mr-boxington go@1.26";
         vm.QueueToolsCommand.Execute(null);
         vm.RemoveQueuedToolCommand.Execute(vm.QueuedTools.Last());

@@ -20,7 +20,7 @@
           </StackPanel>
           <Button Grid.Column="1" Command="{Binding ShowTerminalCommand}" Style="{StaticResource QuietButton}"
                   Width="38" Height="38" MinHeight="38" Padding="8" AutomationProperties.Name="{loc:Tr '打开完整日志'}" ToolTip="{loc:Tr '打开完整日志'}">
-            <controls:SvgIcon Data="{StaticResource IconTerminal}" Width="16" Height="16" />
+            <controls:SvgIcon Data="{StaticResource IconFileText}" Width="16" Height="16" />
           </Button>
         </Grid>
         <Border Style="{StaticResource Card}" Visibility="{Binding NeedsSetup,Converter={StaticResource BoolVisibility}}" IsEnabled="{Binding CanOperate}" AutomationProperties.AutomationId="FirstSetupPanel">

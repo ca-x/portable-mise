@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Threading;
 using PortableMise.Models;
 using PortableMise.Localization;
 using PortableMise.Services;
@@ -7,6 +9,10 @@ namespace PortableMise.ViewModels;
 
 public sealed partial class MainViewModel
 {
+    private string? completionStatus;
+    private readonly List<string> pendingLogLines = [];
+    private DispatcherTimer? logFlushTimer;
+
     public Task InitializeAsync() => RunOperationAsync("检查工作区", RefreshCoreAsync);
 
     private async Task RunOperationAsync(string title, Func<AppSettings, CancellationToken, Task> action)
@@ -14,10 +20,12 @@ public sealed partial class MainViewModel
         if (!await gate.WaitAsync(0)) return;
         operation = new CancellationTokenSource();
         IsBusy = true;
+        completionStatus = null;
         title = UiText.T(title);
         StatusText = title;
         StatusDetail = UiText.T("正在处理，可在终端页查看实时记录。");
         Log("── " + title + " ──");
+        var clock = Stopwatch.StartNew();
         try
         {
             var snapshot = Settings.Copy();
@@ -25,7 +33,8 @@ public sealed partial class MainViewModel
             ProxySupport.Validate(snapshot);
             NotifyPaths();
             await action(snapshot, operation.Token);
-            StatusText = UiText.T("操作完成");
+            string elapsed = clock.Elapsed.TotalSeconds >= 1 ? UiText.F("，用时 {0:0} 秒", clock.Elapsed.TotalSeconds) : "";
+            StatusText = completionStatus ?? UiText.F("{0}完成{1}。", title, elapsed);
             StatusDetail = UiText.F("{0}已完成。", title);
         }
         catch (OperationCanceledException) { StatusText = UiText.T("已取消"); StatusDetail = UiText.T("本次操作已停止。"); Log(UiText.T("操作已取消。")); }
@@ -34,8 +43,43 @@ public sealed partial class MainViewModel
         {
             LastOperation = DateTimeOffset.Now.ToString("HH:mm") + " · " + title;
             IsBusy = false;
+            completionStatus = null;
             operation.Dispose(); operation = null; gate.Release();
         }
+    }
+
+    /// <summary>Batches log lines so a chatty child process does not rebuild the whole text box per line.</summary>
+    private void Log(string text) => Ui(() =>
+    {
+        pendingLogLines.Add(DateTimeOffset.Now.ToString("HH:mm:ss") + "  " + ProxySupport.Sanitize(text));
+        if (logFlushTimer != null) return;
+        logFlushTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(120) };
+        logFlushTimer.Tick += (_, _) => FlushLog();
+        logFlushTimer.Start();
+    });
+
+    private void FlushLog()
+    {
+        if (pendingLogLines.Count == 0) return;
+        var chunk = string.Concat(pendingLogLines.Select(line => line + Environment.NewLine));
+        pendingLogLines.Clear();
+        string updated = LogText + chunk;
+        if (updated.Length > 250_000)
+        {
+            int cut = updated.IndexOf('\n', updated.Length - 200_000);
+            updated = cut < 0 ? updated[^200_000..] : updated[(cut + 1)..];
+        }
+        LogText = updated;
+    }
+
+    /// <summary>Builds a compact completion summary, e.g. "node@22、python@3.13 等 6 项".</summary>
+    private static string SummarizeSpecs(IEnumerable<string> specifications)
+    {
+        var items = specifications.Where(item => !string.IsNullOrWhiteSpace(item)).Select(item => item.Trim()).ToList();
+        if (items.Count == 0) return UiText.T("0 项");
+        const int previewLimit = 4;
+        if (items.Count <= previewLimit) return string.Join(UiText.T("、"), items);
+        return UiText.F("{0} 等 {1} 项", string.Join(UiText.T("、"), items.Take(previewLimit)), items.Count);
     }
 
     private async Task CommitSettingsAsync(AppSettings snapshot, CancellationToken ct)
@@ -134,11 +178,6 @@ public sealed partial class MainViewModel
         if (dispatcher?.HasShutdownStarted == true) return;
         if (dispatcher == null || dispatcher.CheckAccess()) action(); else dispatcher.BeginInvoke(action);
     }
-    private void Log(string text) => Ui(() => {
-        string line = DateTimeOffset.Now.ToString("HH:mm:ss") + "  " + ProxySupport.Sanitize(text) + Environment.NewLine;
-        string updated = LogText + line;
-        LogText = updated.Length <= 250_000 ? updated : updated[^200_000..];
-    });
     private void ReportError(Exception error) => Ui(() => {
         StatusText = UiText.T("操作未完成");
         StatusDetail = ProxySupport.Sanitize(error.Message);

@@ -99,7 +99,7 @@
           <TextBlock Text="{Binding LastOperation}" Style="{StaticResource Caption}" VerticalAlignment="Center" />
           <Button Grid.Column="1" Command="{Binding ShowTerminalCommand}" Style="{StaticResource QuietButton}">
             <StackPanel Orientation="Horizontal">
-              <controls:SvgIcon Data="{StaticResource IconTerminal}" Width="13" Height="13" Margin="0,0,6,0" />
+              <controls:SvgIcon Data="{StaticResource IconFileText}" Width="13" Height="13" Margin="0,0,6,0" />
               <TextBlock Text="{loc:Tr '查看日志'}" />
             </StackPanel>
           </Button>
