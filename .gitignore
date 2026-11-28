@@ -57,6 +57,7 @@ TestResult.xml
 nunit-*.xml
 # Local portable data and agent/build evidence
 .omo/
+.omx/
 artifacts/
 portable-mise.json
 portable-mise.json.bak

@@ -25,6 +25,9 @@ public static class ViewModelTests
         Check(mise.SelfUpdates == 0 && mise.ToolUpdates == 0, "automatic updates wait while a moved workspace needs restoration");
         vm.ToolFilter = "does-not-match";
         Check(vm.FilteredTools.IsEmpty, "tool filter matches observable service data");
+        Check(vm.ClearToolFilterCommand.CanExecute(null), "clear filter command is available while the filter is active");
+        vm.ClearToolFilterCommand.Execute(null);
+        Check(string.IsNullOrEmpty(vm.ToolFilter) && !vm.ClearToolFilterCommand.CanExecute(null), "clear filter empties the tool filter and disables itself");
         vm.ToolFilter = "node";
         Check(!vm.FilteredTools.IsEmpty, "tool filter restores matching row");
         Check(vm.CloseBehaviorChoice == CloseBehavior.Ask, "first close asks for an explicit user choice");

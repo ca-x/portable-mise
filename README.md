@@ -2,7 +2,7 @@
 
 适用于 Windows 11 的 mise 桌面工具。可以批量安装和更新开发工具，为不同语言设置版本、安装选项和镜像，并在换机后从原有目录恢复环境。
 
-**下载 v0.2.1**：[Windows x64](https://github.com/ca-x/portable-mise/releases/download/v0.2.1/PortableMise-v0.2.1-win-x64.exe) · [Windows ARM64](https://github.com/ca-x/portable-mise/releases/download/v0.2.1/PortableMise-v0.2.1-win-arm64.exe) · [发布说明与校验文件](https://github.com/ca-x/portable-mise/releases/tag/v0.2.1)
+**下载 v0.3.0**：[Windows x64](https://github.com/ca-x/portable-mise/releases/download/v0.3.0/PortableMise-v0.3.0-win-x64.exe) · [Windows ARM64](https://github.com/ca-x/portable-mise/releases/download/v0.3.0/PortableMise-v0.3.0-win-arm64.exe) · [发布说明与校验文件](https://github.com/ca-x/portable-mise/releases/tag/v0.3.0)
 
 按设备架构下载单个 EXE。运行需要 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/zh-cn/download/dotnet/10.0)。
 

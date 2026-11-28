@@ -29,6 +29,7 @@ public sealed partial class MainViewModel
     public ICommand OpenDataFolderCommand { get; private set; } = null!;
     public ICommand OpenDocsCommand { get; private set; } = null!;
     public ICommand ClearLogsCommand { get; private set; } = null!;
+    public ICommand ClearToolFilterCommand { get; private set; } = null!;
     public ICommand ShowLicenseCommand { get; private set; } = null!;
     public ICommand ShowOverviewCommand { get; private set; } = null!;
     public ICommand ShowToolsCommand { get; private set; } = null!;
@@ -61,6 +62,7 @@ public sealed partial class MainViewModel
         OpenDataFolderCommand = new RelayCommand(() => TryAction(() => OpenLocation(appDirectory)));
         OpenDocsCommand = new RelayCommand(() => TryAction(() => OpenLocation("https://mise.jdx.dev/installing-mise.html#windows")));
         ClearLogsCommand = new RelayCommand(() => LogText = "");
+        ClearToolFilterCommand = new RelayCommand(() => ToolFilter = "", () => ToolFilter.Length > 0);
         ShowLicenseCommand = new RelayCommand(() => TryAction(ShowLicense));
         CancelCommand = new RelayCommand(() => operation?.Cancel(), () => IsBusy);
         ShowOverviewCommand = new RelayCommand(() => CurrentPage = 0);

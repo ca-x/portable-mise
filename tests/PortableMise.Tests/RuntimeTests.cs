@@ -20,6 +20,8 @@ public static class RuntimeTests
         count = 0;
         string first = Path.GetFullPath(Path.Combine(scratchRoot, "runtime-first"));
         string moved = Path.GetFullPath(Path.Combine(scratchRoot, "runtime-moved"));
+        // The suite intentionally persists broken JSON near the end; clear stale scratch so repeat runs start clean.
+        if (Directory.Exists(scratchRoot)) Directory.Delete(scratchRoot, recursive: true);
         Directory.CreateDirectory(first);
         var settings = new AppSettings();
         var store = new SettingsStore(first);

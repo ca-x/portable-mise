@@ -8,6 +8,8 @@ public static class PortableEcosystemTests
 {
     public static async Task<int> RunAsync(string scratchRoot)
     {
+        // The suite deliberately hand-edits generated files later on; clear stale scratch so repeat runs start clean.
+        if (Directory.Exists(scratchRoot)) Directory.Delete(scratchRoot, recursive: true);
         var paths = AppPaths.Resolve(new AppSettings(), scratchRoot);
         const string mirror = "https://mirror.example.test/repository/";
         int count = 0;

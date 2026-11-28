@@ -57,7 +57,8 @@
               <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Border Background="{StaticResource QueueChip}" CornerRadius="6" Margin="0,0,8,6" Padding="8,0,2,0">
+                  <Border Background="{StaticResource QueueChip}" CornerRadius="6" Margin="0,0,8,6" Padding="8,0,2,0"
+                          controls:Motion.FadeIn="True">
                     <StackPanel Orientation="Horizontal">
                       <TextBlock Text="{Binding Label}" MaxWidth="270" TextTrimming="CharacterEllipsis" ToolTip="{Binding Label}"
                                  VerticalAlignment="Center" FontFamily="{StaticResource MonoFont}" FontSize="12" />
@@ -123,7 +124,9 @@
           <Grid Grid.Column="1">
             <TextBox Text="{Binding ToolFilter,UpdateSourceTrigger=PropertyChanged}" Padding="36,8,12,8"
                      ToolTip="{loc:Tr '搜索工具或版本'}" AutomationProperties.Name="{loc:Tr '搜索工具或版本'}"
-                     AutomationProperties.AutomationId="ToolFilterBox" />
+                     AutomationProperties.AutomationId="ToolFilterBox">
+              <TextBox.InputBindings><KeyBinding Key="Escape" Command="{Binding ClearToolFilterCommand}" /></TextBox.InputBindings>
+            </TextBox>
             <controls:SvgIcon Data="{StaticResource IconSearch}" Width="16" Height="16" HorizontalAlignment="Left"
                               Margin="12,0,0,0" IsHitTestVisible="False" />
             <TextBlock Text="{loc:Tr '搜索工具'}" Foreground="{StaticResource MutedLight}" Margin="36,0,0,0"
@@ -163,20 +166,21 @@
               </DataGridTemplateColumn>
             </DataGrid.Columns>
           </DataGrid>
-          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <StackPanel.Style>
-              <Style TargetType="StackPanel">
-                <Setter Property="Visibility" Value="Collapsed" />
-                <Style.Triggers>
-                  <DataTrigger Binding="{Binding ToolCount}" Value="0">
-                    <Setter Property="Visibility" Value="Visible" />
-                  </DataTrigger>
-                </Style.Triggers>
-              </Style>
-            </StackPanel.Style>
-            <controls:SvgIcon Data="{StaticResource IconPackage}" Width="30" Height="30" Foreground="{StaticResource MutedLight}" HorizontalAlignment="Center"/>
-            <TextBlock Text="{loc:Tr '暂无工具'}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,7" />
-          </StackPanel>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
+              <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding ToolCount}" Value="0">
+                      <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </StackPanel.Style>
+              <controls:SvgIcon Data="{StaticResource IconPackage}" Width="30" Height="30" Foreground="{StaticResource MutedLight}" HorizontalAlignment="Center"/>
+              <TextBlock Text="{loc:Tr '暂无工具'}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,7" />
+              <TextBlock Text="{loc:Tr '在上方输入 node@lts 等规格加入队列，点击「批量安装」即可。'}" Style="{StaticResource Caption}" TextAlignment="Center" />
+            </StackPanel>
         </Grid>
       </Border>
     </Grid>

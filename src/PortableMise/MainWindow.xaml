@@ -105,7 +105,10 @@
       </Grid>
     </Border>
 
-    <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding}">
+    <ContentControl x:Name="PageHost" Grid.Row="1" Grid.Column="1" Content="{Binding}" RenderTransformOrigin="0.5,0">
+      <ContentControl.RenderTransform>
+        <TranslateTransform />
+      </ContentControl.RenderTransform>
       <ContentControl.Style>
         <Style TargetType="ContentControl">
           <Setter Property="ContentTemplate" Value="{StaticResource OverviewPage}" />

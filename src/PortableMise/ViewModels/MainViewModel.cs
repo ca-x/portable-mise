@@ -64,7 +64,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public string StatusDetail { get => detail; private set => Set(ref detail, value); }
     public string LastOperation { get => lastOperation; private set => Set(ref lastOperation, value); }
     public string LogText { get => logText; private set => Set(ref logText, value); }
-    public string ToolFilter { get => filter; set { if (Set(ref filter, value)) FilteredTools.Refresh(); } }
+    public string ToolFilter { get => filter; set { if (Set(ref filter, value)) { FilteredTools.Refresh(); CommandManager.InvalidateRequerySuggested(); } } }
     public string ToolSpecification
     {
         get => specification;
